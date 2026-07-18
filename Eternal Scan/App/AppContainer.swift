@@ -5,6 +5,7 @@
 //  Created by Maneet@MLL on 18/07/26.
 //
 
+import Foundation
 import Observation
 
 @Observable
@@ -13,6 +14,10 @@ final class AppContainer {
     let cameraService: CameraServiceProtocol
     let visionService: VisionServiceProtocol
     let aiService: AIServiceProtocol
+
+    // Navigation state
+    var capturedImageData: Data?
+    var detectedProduct: DetectedProduct?
 
     init() {
         router = AppRouter()

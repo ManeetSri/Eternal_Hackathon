@@ -14,12 +14,21 @@ struct RootView: View {
         @Bindable var router = container.router
         NavigationStack(path: $router.path) {
             HomeView(viewModel: HomeViewModel(container: container))
-            .navigationDestination(for: AppRoute.self) { route in
-                switch route {
-                case .scanner:
-                    ScannerView(viewModel: ScannerViewModel(container: container))
+                .navigationDestination(for: AppRoute.self) { route in
+                    switch route {
+                    case .scanner:
+                        ScannerView(viewModel: ScannerViewModel(container: container))
+
+                    case .processing:
+                        ProcessingView(viewModel: ProcessingViewModel(container: container))
+
+                    case .result:
+                        ResultView(viewModel: ResultViewModel(container: container))
+
+                    case .cart:
+                        CartView(viewModel: CartViewModel(container: container))
+                    }
                 }
-            }
         }
     }
 }

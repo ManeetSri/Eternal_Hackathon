@@ -29,4 +29,7 @@ final class AppRouter {
 
 enum AppRoute: Hashable {
     case scanner
+    case processing
+    case result
+    case cart
 }

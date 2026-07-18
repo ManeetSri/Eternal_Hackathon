@@ -2,6 +2,40 @@
 //  ResultViewModel.swift
 //  Eternal Scan
 //
-//  Created by Maneet@MLL on 18/07/26.
-//
 
+import Foundation
+import Observation
+
+@Observable
+@MainActor
+final class ResultViewModel {
+    private let container: AppContainer
+
+    var quantity: Int = 1
+
+    var product: DetectedProduct? {
+        container.detectedProduct
+    }
+
+    init(container: AppContainer) {
+        self.container = container
+    }
+
+    func addToCart() {
+        container.router.push(.cart)
+    }
+
+    func scanAgain() {
+        container.router.popToRoot()
+    }
+
+    func incrementQuantity() {
+        quantity += 1
+    }
+
+    func decrementQuantity() {
+        if quantity > 1 {
+            quantity -= 1
+        }
+    }
+}
