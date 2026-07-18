@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(AppRouter.self) private var router
-
-    @State private var viewModel = HomeViewModel()
+    @Bindable var viewModel: HomeViewModel
 
     var body: some View {
         VStack(spacing: 24) {
@@ -23,7 +21,7 @@ struct HomeView: View {
             Text(viewModel.subtitle)
                 .foregroundStyle(.secondary)
             Button {
-                router.push(.scanner)
+                viewModel.navigateToScanner()
             } label: {
                 Label("Scan Product", systemImage: "camera")
                     .font(.headline)

@@ -10,9 +10,22 @@
 		87F28877300B81B1004CC943 /* Eternal Scan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Eternal Scan.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		87F28908300B96D9004CC943 /* Exceptions for "Eternal Scan" folder in "Eternal Scan" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Eternal-Scan-Info.plist",
+			);
+			target = 87F28876300B81B1004CC943 /* Eternal Scan */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		87F28879300B81B1004CC943 /* Eternal Scan */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				87F28908300B96D9004CC943 /* Exceptions for "Eternal Scan" folder in "Eternal Scan" target */,
+			);
 			path = "Eternal Scan";
 			sourceTree = "<group>";
 		};
@@ -256,8 +269,10 @@
 				DEVELOPMENT_TEAM = K8JC2MJH3S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Eternal-Scan-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Eternal Scan";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Scan grocery products to quickly reorder them.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -290,8 +305,10 @@
 				DEVELOPMENT_TEAM = K8JC2MJH3S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Eternal-Scan-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Eternal Scan";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Scan grocery products to quickly reorder them.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

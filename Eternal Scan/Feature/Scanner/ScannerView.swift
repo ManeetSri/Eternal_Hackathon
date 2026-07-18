@@ -7,20 +7,21 @@
 
 import SwiftUI
 
-struct ScannerView: View {
-    var body: some View {
-        ZStack {
-            Color.black
-                .ignoresSafeArea()
+import SwiftUI
 
-            VStack(spacing: 20) {
-                Image(systemName: "camera")
-                    .font(.system(size: 80))
-                    .foregroundStyle(.white)
-                Text("Camera Coming Soon")
-                    .font(.title2)
-                    .foregroundStyle(.white)
+struct ScannerView: View {
+
+    @Bindable var viewModel: ScannerViewModel
+
+    var body: some View {
+
+        CameraPreview(session: viewModel.cameraService.session)
+            .ignoresSafeArea()
+            .task {
+                await viewModel.startCamera()
             }
-        }.navigationBarTitleDisplayMode(.inline)
+            .onDisappear {
+                viewModel.stopCamera()
+            }
     }
 }

@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct RootView: View {
-    @Environment(AppRouter.self) private var router
-    
+    @Environment(AppContainer.self) private var container
+
     var body: some View {
-        @Bindable var router = router
+        @Bindable var router = container.router
         NavigationStack(path: $router.path) {
-            HomeView()
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .scanner:
-                        ScannerView()
-                    }
+            HomeView(viewModel: HomeViewModel(container: container))
+            .navigationDestination(for: AppRoute.self) { route in
+                switch route {
+                case .scanner:
+                    ScannerView(viewModel: ScannerViewModel(container: container))
                 }
+            }
         }
     }
 }
