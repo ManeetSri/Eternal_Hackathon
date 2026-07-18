@@ -37,6 +37,7 @@ final class AIService: AIServiceProtocol {
 
         // Combine OCR text (barcode + text recognition)
         let combinedText = ocrResult.extractedText + " " + ocrResult.observations.joined(separator: " ")
+        print("[AIService] Combined OCR Text: '\(combinedText)'")
 
         // Prepare barcodes array
         let barcodes = ocrResult.detectedBarcode.map { [$0] } ?? []
@@ -50,6 +51,7 @@ final class AIService: AIServiceProtocol {
 
         // Convert to DetectedProduct
         if let match = match {
+            print("[AIService] Product Match: \(match.product.brand) \(match.product.name) (confidence: \(match.confidence))")
             return DetectedProduct(
                 brand: match.product.brand,
                 name: match.product.name,
@@ -61,6 +63,7 @@ final class AIService: AIServiceProtocol {
         }
 
         // Fallback if no match found
+        print("[AIService] No product match found")
         return DetectedProduct(
             brand: "Unknown",
             name: "Product not found",

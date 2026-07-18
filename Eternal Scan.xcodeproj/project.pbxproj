@@ -6,11 +6,51 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		871BE468300BA9EF00E37F4E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 871BE467300BA9EE00E37F4E /* WidgetKit.framework */; };
+		871BE46A300BA9EF00E37F4E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 871BE469300BA9EF00E37F4E /* SwiftUI.framework */; };
+		871BE47B300BA9F000E37F4E /* EternalScanWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 871BE465300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		871BE479300BA9F000E37F4E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 87F2886F300B81B1004CC943 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 871BE464300BA9EE00E37F4E;
+			remoteInfo = EternalScanWidgetExtensionExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		871BE480300BA9F000E37F4E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				871BE47B300BA9F000E37F4E /* EternalScanWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		871BE465300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EternalScanWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		871BE467300BA9EE00E37F4E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		871BE469300BA9EF00E37F4E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		87F28877300B81B1004CC943 /* Eternal Scan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Eternal Scan.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		871BE47F300BA9F000E37F4E /* Exceptions for "EternalScanWidgetExtension" folder in "EternalScanWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 871BE464300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension */;
+		};
 		87F28908300B96D9004CC943 /* Exceptions for "Eternal Scan" folder in "Eternal Scan" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -21,6 +61,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		871BE46B300BA9EF00E37F4E /* EternalScanWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				871BE47F300BA9F000E37F4E /* Exceptions for "EternalScanWidgetExtension" folder in "EternalScanWidgetExtensionExtension" target */,
+			);
+			path = EternalScanWidgetExtension;
+			sourceTree = "<group>";
+		};
 		87F28879300B81B1004CC943 /* Eternal Scan */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -32,6 +80,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		871BE462300BA9EE00E37F4E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				871BE46A300BA9EF00E37F4E /* SwiftUI.framework in Frameworks */,
+				871BE468300BA9EF00E37F4E /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		87F28874300B81B1004CC943 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,10 +99,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		871BE466300BA9EE00E37F4E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				871BE467300BA9EE00E37F4E /* WidgetKit.framework */,
+				871BE469300BA9EF00E37F4E /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		87F2886E300B81B1004CC943 = {
 			isa = PBXGroup;
 			children = (
 				87F28879300B81B1004CC943 /* Eternal Scan */,
+				871BE46B300BA9EF00E37F4E /* EternalScanWidgetExtension */,
+				871BE466300BA9EE00E37F4E /* Frameworks */,
 				87F28878300B81B1004CC943 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				87F28877300B81B1004CC943 /* Eternal Scan.app */,
+				871BE465300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +130,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		871BE464300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 871BE47C300BA9F000E37F4E /* Build configuration list for PBXNativeTarget "EternalScanWidgetExtensionExtension" */;
+			buildPhases = (
+				871BE461300BA9EE00E37F4E /* Sources */,
+				871BE462300BA9EE00E37F4E /* Frameworks */,
+				871BE463300BA9EE00E37F4E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				871BE46B300BA9EF00E37F4E /* EternalScanWidgetExtension */,
+			);
+			name = EternalScanWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = EternalScanWidgetExtensionExtension;
+			productReference = 871BE465300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		87F28876300B81B1004CC943 /* Eternal Scan */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 87F28882300B81B2004CC943 /* Build configuration list for PBXNativeTarget "Eternal Scan" */;
@@ -68,10 +159,12 @@
 				87F28873300B81B1004CC943 /* Sources */,
 				87F28874300B81B1004CC943 /* Frameworks */,
 				87F28875300B81B1004CC943 /* Resources */,
+				871BE480300BA9F000E37F4E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				871BE47A300BA9F000E37F4E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				87F28879300B81B1004CC943 /* Eternal Scan */,
@@ -93,6 +186,9 @@
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					871BE464300BA9EE00E37F4E = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					87F28876300B81B1004CC943 = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -113,11 +209,19 @@
 			projectRoot = "";
 			targets = (
 				87F28876300B81B1004CC943 /* Eternal Scan */,
+				871BE464300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		871BE463300BA9EE00E37F4E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		87F28875300B81B1004CC943 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +232,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		871BE461300BA9EE00E37F4E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		87F28873300B81B1004CC943 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,7 +248,77 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		871BE47A300BA9F000E37F4E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 871BE464300BA9EE00E37F4E /* EternalScanWidgetExtensionExtension */;
+			targetProxy = 871BE479300BA9F000E37F4E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		871BE47D300BA9F000E37F4E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RJ4T3D7449;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EternalScanWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EternalScanWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eternalscan.widgetextension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		871BE47E300BA9F000E37F4E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RJ4T3D7449;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EternalScanWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EternalScanWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eternalscan.widgetextension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		87F28880300B81B2004CC943 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -264,6 +445,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Eternal Scan/Eternal Scan.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -302,6 +484,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Eternal Scan/Eternal Scan.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -338,6 +521,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		871BE47C300BA9F000E37F4E /* Build configuration list for PBXNativeTarget "EternalScanWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				871BE47D300BA9F000E37F4E /* Debug */,
+				871BE47E300BA9F000E37F4E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		87F28872300B81B1004CC943 /* Build configuration list for PBXProject "Eternal Scan" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

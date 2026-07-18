@@ -107,8 +107,14 @@ final class ProductMatchingEngine {
         let entities = extractEntities(from: text)
 
         var matches: [ProductMatch] = []
+        let lowerText = text.lowercased()
 
         for product in productDatabase {
+            // Check if any product tag matches text
+            let tagMatches = product.tags.filter { tag in
+                lowerText.contains(tag.lowercased())
+            }.count
+
             let nameScore = calculateSemanticSimilarity(
                 entities.productNames,
                 target: product.name
@@ -126,17 +132,28 @@ final class ProductMatchingEngine {
 
             let categoryMatch = entities.categories.contains(product.category) ? 0.8 : 0.0
 
-            let combinedScore = (nameScore * 0.4) + (brandScore * 0.3) +
-                               (descriptionScore * 0.2) + (categoryMatch * 0.1)
+            // Tag matching bonus (strong signal)
+            let tagMatchBonus = tagMatches > 0 ? Double(min(tagMatches, 3)) * 0.2 : 0.0
 
-            if combinedScore > 0.5 {
+            // Check if product brand/name appears directly in text
+            let directBrandMatch = lowerText.contains(product.brand.lowercased()) ? 0.85 : 0.0
+            let directNameMatch = lowerText.contains(product.name.lowercased()) ? 0.85 : 0.0
+
+            let combinedScore = (nameScore * 0.2) + (brandScore * 0.2) +
+                               (descriptionScore * 0.1) + (categoryMatch * 0.1) +
+                               max(directBrandMatch, directNameMatch, brandScore) +
+                               tagMatchBonus
+
+            print("[ProductMatch] \(product.brand) \(product.name): score=\(combinedScore), tags=\(tagMatches)")
+
+            if combinedScore > 0.4 {  // Lowered threshold for better matching
                 matches.append(
                     ProductMatch(
                         product: product,
-                        confidence: Float(combinedScore),
+                        confidence: Float(min(combinedScore, 0.95)),  // Cap at 0.95 for non-barcode
                         matchFactors: MatchFactors(
                             barcodeMatch: 0,
-                            nameMatch: Float(nameScore),
+                            nameMatch: Float(max(nameScore, directNameMatch)),
                             semanticMatch: Float(descriptionScore),
                             visualMatch: 0,
                             categoryMatch: Float(categoryMatch)
@@ -339,14 +356,105 @@ final class ProductMatchingEngine {
             }
         }
 
-        return combinedScores.values.max(by: { $0.totalScore < $1.totalScore })?.match
+        let bestMatch = combinedScores.values.max(by: { $0.totalScore < $1.totalScore })?.match
+
+        // If no database match found, create product from OCR data
+        if bestMatch == nil || bestMatch!.confidence < 0.5 {
+            return createProductFromOCR(text: ocrText)
+        }
+
+        return bestMatch
+    }
+
+    // MARK: - Fallback: Create Product from OCR
+    private func createProductFromOCR(text: String) -> ProductMatch? {
+        let entities = extractEntities(from: text)
+
+        // Get brand (first capitalized word or first entity)
+        let brand = entities.brands.first ?? "Unknown Brand"
+
+        // Get product name (first few words from text)
+        let words = text.split(separator: " ").prefix(3).map(String.init)
+        let name = words.joined(separator: " ")
+
+        // Infer size/variant from text
+        let size = extractSize(from: text)
+        let variant = extractVariant(from: text)
+
+        // Infer category
+        let category = entities.categories.first ?? "General"
+
+        // Create synthetic product
+        let variants: [ProductVariant] = if let size = size {
+            [ProductVariant(id: "1", name: variant ?? "Standard", size: size, unit: "unit")]
+        } else {
+            []
+        }
+
+        let syntheticProduct = CatalogProduct(
+            id: UUID().uuidString,
+            barcode: nil,
+            brand: brand,
+            name: name,
+            description: text,
+            category: category,
+            tags: entities.descriptors,
+            variants: variants,
+            pricing: nil
+        )
+
+        // Return with lower confidence since it's not database-verified
+        return ProductMatch(
+            product: syntheticProduct,
+            confidence: 0.65,  // Medium confidence for OCR-only matches
+            matchFactors: MatchFactors(
+                barcodeMatch: 0,
+                nameMatch: 0.7,
+                semanticMatch: 0.65,
+                visualMatch: 0.5,
+                categoryMatch: 0.6
+            )
+        )
+    }
+
+    // MARK: - Extract Size from Text
+    private func extractSize(from text: String) -> String? {
+        let sizePatterns = [
+            "\\d+\\s*ml",      // e.g., "500ml"
+            "\\d+\\s*L",       // e.g., "1L"
+            "\\d+\\s*g",       // e.g., "250g"
+            "\\d+\\s*kg",      // e.g., "2kg"
+            "\\d+\\s*oz",      // e.g., "8oz"
+            "\\d+\\s*lb",      // e.g., "2lb"
+        ]
+
+        for pattern in sizePatterns {
+            if let range = text.range(of: pattern, options: .regularExpression) {
+                return String(text[range])
+            }
+        }
+        return nil
+    }
+
+    // MARK: - Extract Variant from Text
+    private func extractVariant(from text: String) -> String? {
+        let variantKeywords = ["Regular", "Sugar-Free", "Diet", "Lite", "Zero", "Classic", "Premium",
+                              "Organic", "Natural", "Flavored", "Original", "Plus", "Max"]
+
+        for keyword in variantKeywords {
+            if text.lowercased().contains(keyword.lowercased()) {
+                return keyword
+            }
+        }
+        return nil
     }
 
     // MARK: - Load Product Database
     private func loadProductDatabase() {
         // Load from local JSON or database
-        // For now, sample data
+        // Sample Blinkit grocery products
         productDatabase = [
+            // Beverages
             CatalogProduct(
                 id: "1",
                 barcode: "8901000100102",
@@ -363,6 +471,21 @@ final class ProductMatchingEngine {
                 pricing: 50.0
             ),
             CatalogProduct(
+                id: "1a",
+                barcode: "8901000100119",
+                brand: "Coca-Cola",
+                name: "Sprite Lemon-Lime",
+                description: "Crisp lemon-lime flavored soft drink",
+                category: "beverages",
+                tags: ["sprite", "lemon", "lime", "soft-drink"],
+                variants: [
+                    ProductVariant(id: "1a.1", name: "Regular", size: "500ml", unit: "ml"),
+                ],
+                pricing: 45.0
+            ),
+
+            // Snacks
+            CatalogProduct(
                 id: "2",
                 barcode: "8901063500001",
                 brand: "Lay's",
@@ -375,6 +498,68 @@ final class ProductMatchingEngine {
                     ProductVariant(id: "2.2", name: "Masala", size: "50g", unit: "g"),
                 ],
                 pricing: 20.0
+            ),
+
+            // Dairy
+            CatalogProduct(
+                id: "3",
+                barcode: "8901000200001",
+                brand: "Amul",
+                name: "Amul Milk",
+                description: "Pure cow milk",
+                category: "dairy",
+                tags: ["milk", "dairy", "fresh"],
+                variants: [
+                    ProductVariant(id: "3.1", name: "Regular", size: "500ml", unit: "ml"),
+                    ProductVariant(id: "3.2", name: "Toned", size: "1L", unit: "ml"),
+                ],
+                pricing: 60.0
+            ),
+
+            // Snacks
+            CatalogProduct(
+                id: "4",
+                barcode: "8901234567890",
+                brand: "Britannia",
+                name: "Britannia Good Day Cookies",
+                description: "Crunchy biscuits with chocolate chips",
+                category: "snacks",
+                tags: ["biscuits", "cookies", "snack"],
+                variants: [
+                    ProductVariant(id: "4.1", name: "Chocolate", size: "150g", unit: "g"),
+                ],
+                pricing: 35.0
+            ),
+
+            // Spices
+            CatalogProduct(
+                id: "5",
+                barcode: "8901111111111",
+                brand: "MDH",
+                name: "MDH Garam Masala",
+                description: "Aromatic spice blend",
+                category: "spices",
+                tags: ["spice", "garam-masala", "seasoning"],
+                variants: [
+                    ProductVariant(id: "5.1", name: "Standard", size: "100g", unit: "g"),
+                ],
+                pricing: 40.0
+            ),
+
+            // Electronics - MacBook
+            CatalogProduct(
+                id: "6",
+                barcode: "0194252208480",
+                brand: "Apple",
+                name: "MacBook Pro",
+                description: "Powerful laptop with M-series chip",
+                category: "Electronics",
+                tags: ["macbook", "laptop", "apple", "computer", "m3"],
+                variants: [
+                    ProductVariant(id: "6.1", name: "16-inch M3 Max", size: "36GB", unit: "Memory"),
+                    ProductVariant(id: "6.2", name: "14-inch M3 Pro", size: "18GB", unit: "Memory"),
+                ],
+                pricing: 199999.0
             ),
         ]
     }

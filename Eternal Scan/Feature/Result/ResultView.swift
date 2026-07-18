@@ -45,6 +45,14 @@ struct ResultView: View {
                             }
 
                             ConfidenceBadge(confidence: product.confidence)
+
+                            // Confidence explanation
+                            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                                Text(confidenceDescription(product.confidence))
+                                    .font(AppTheme.Typography.caption2)
+                                    .foregroundStyle(AppTheme.Colors.textSecondary)
+                            }
+                            .padding(.top, AppTheme.Spacing.sm)
                         }
                     }
                     .padding(AppTheme.Spacing.lg)
@@ -118,6 +126,20 @@ struct ResultView: View {
         .background(AppTheme.Colors.background)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
+    }
+
+    private func confidenceDescription(_ confidence: Float) -> String {
+        if confidence >= 0.9 {
+            return "✓ Barcode match - Product verified in catalog"
+        } else if confidence >= 0.8 {
+            return "✓ High confidence match from product database"
+        } else if confidence >= 0.65 {
+            return "~ Medium confidence - Product detected from image"
+        } else if confidence >= 0.5 {
+            return "⚠ Low confidence - Product may need verification"
+        } else {
+            return "✗ Unable to recognize product"
+        }
     }
 }
 

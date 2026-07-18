@@ -18,12 +18,17 @@ final class VisionService: VisionServiceProtocol {
 
         // Extract text
         let (extractedText, textConfidence) = try await recognizeText(cgImage: cgImage)
+        print("[VisionService] Extracted Text: '\(extractedText)' (confidence: \(textConfidence))")
 
         // Extract barcodes
         let barcode = try await detectBarcode(cgImage: cgImage)
+        if let barcode = barcode {
+            print("[VisionService] Detected Barcode: \(barcode)")
+        }
 
         // Extract observations (text regions)
         let observations = try await extractTextObservations(cgImage: cgImage)
+        print("[VisionService] Observations: \(observations)")
 
         return OCRResult(
             extractedText: extractedText,

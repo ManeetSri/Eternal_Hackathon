@@ -56,6 +56,10 @@ final class ProcessingViewModel {
 
                 // Store result and navigate
                 container.detectedProduct = detectedProduct
+
+                // Save to Shortcuts for App Intent to retrieve
+                ShortcutsResultManager.shared.saveScannedProduct(detectedProduct)
+
                 container.router.push(.result)
 
             } catch {
