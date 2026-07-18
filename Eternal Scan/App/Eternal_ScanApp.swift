@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct Eternal_ScanApp: App {
+    @State private var router = AppRouter()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(router)
         }
     }
 }
