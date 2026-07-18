@@ -13,4 +13,7 @@ protocol VisionServiceProtocol: Sendable {
     /// - Parameter image: Captured product image.
     /// - Returns: OCR result extracted from the image.
     func analyze(image: UIImage) async throws -> OCRResult
+
+    /// Extracts text and barcodes from image
+    func extractText(from image: UIImage) async throws -> OCRResult
 }

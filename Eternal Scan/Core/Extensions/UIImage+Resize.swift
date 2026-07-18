@@ -2,6 +2,15 @@
 //  UIImage+Resize.swift
 //  Eternal Scan
 //
-//  Created by Maneet@MLL on 18/07/26.
-//
 
+import UIKit
+
+extension UIImage {
+    func resized(to size: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return image
+    }
+}
