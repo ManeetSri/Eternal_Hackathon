@@ -16,7 +16,7 @@ struct TextInputSheet: View {
                     Image(systemName: "sparkles")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(ESColor.ai)
-                    Text("AI Assistant")
+                    Text(vm.strings.aiAssistant)
                         .font(ESFont.sans(20, weight: .heavy))
                         .tracking(-0.8)
                         .textCase(.uppercase)
@@ -24,11 +24,12 @@ struct TextInputSheet: View {
                 Spacer()
                 Button { vm.sheet = nil } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(ESColor.foreground)
-                        .frame(width: 32, height: 32)
+                        .frame(width: 44, height: 44)
                         .background(Circle().fill(Color.black.opacity(0.05)))
                 }
+                .accessibilityLabel(vm.strings.close)
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -38,7 +39,7 @@ struct TextInputSheet: View {
             VStack(alignment: .leading, spacing: 8) {
                 ZStack(alignment: .topLeading) {
                     if vm.query.isEmpty {
-                        Text("pasta arrabbiata for 4")
+                        Text(vm.strings.textPlaceholder)
                             .font(ESFont.sans(18, weight: .bold))
                             .foregroundStyle(Color.black.opacity(0.2))
                             .padding(.top, 8)
@@ -55,11 +56,12 @@ struct TextInputSheet: View {
                                 vm.query = String(newValue.prefix(140))
                             }
                         }
+                        .accessibilityLabel("Meal description")
                 }
                 HStack {
-                    Text("Free text · meal, servings, occasion").monoLabel(size: 10)
+                    Text(vm.strings.freeTextHint).monoLabel(size: 11)
                     Spacer()
-                    Text("\(vm.query.count)/140").monoLabel(size: 10)
+                    Text("\(vm.query.count)/140").monoLabel(size: 11)
                 }
             }
             .padding(16)
@@ -75,7 +77,7 @@ struct TextInputSheet: View {
 
             // Suggestions
             VStack(alignment: .leading, spacing: 8) {
-                Text("Try").monoLabel(size: 10)
+                Text(vm.strings.tryLabel).monoLabel(size: 11)
                     .padding(.leading, 24)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -103,29 +105,42 @@ struct TextInputSheet: View {
 
             Spacer()
 
-            Button(action: {
-                vm.searchByIntentOrText()
-                vm.sheet = nil
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "sparkles")
-                        .foregroundStyle(ESColor.ai)
-                        .font(.system(size: 13, weight: .semibold))
-                    Text("Generate Ingredients")
-                        .font(ESFont.mono(11, weight: .heavy))
-                        .kerning(2)
-                        .textCase(.uppercase)
+            HStack(spacing: 10) {
+                // Switch to voice input, mirroring the voice sheet's "Type Instead"
+                Button(action: vm.openVoice) {
+                    Image(systemName: "mic.fill")
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(.white)
+                        .frame(width: 56, height: 56)
+                        .background(Circle().fill(ESColor.primary))
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
-                .background(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(ESColor.foreground)
-                        .opacity(vm.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.3 : 1)
-                )
+                .buttonStyle(PressableStyle())
+                .accessibilityLabel(vm.strings.speakYourOrder)
+
+                Button(action: {
+                    vm.searchByIntentOrText()
+                    vm.sheet = nil
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(ESColor.ai)
+                            .font(.system(size: 13, weight: .semibold))
+                        Text(vm.strings.generateIngredients)
+                            .font(ESFont.mono(11, weight: .heavy))
+                            .kerning(2)
+                            .textCase(.uppercase)
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(ESColor.foreground)
+                            .opacity(vm.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.3 : 1)
+                    )
+                }
+                .disabled(vm.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .disabled(vm.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }

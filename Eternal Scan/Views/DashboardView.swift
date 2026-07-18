@@ -21,34 +21,23 @@ struct DashboardView: View {
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
-                StatusBar()
-
-                // Top strip
-                HStack {
-                    DeliveryPill(text: "Delivering in 9 mins")
-                    Spacer()
-                    HStack(spacing: 4) {
-                        Image(systemName: "mappin")
-                            .font(.system(size: 9, weight: .semibold))
-                        Text("Home").monoLabel(size: 10)
+                // Headline with language toggle
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Eternal Scan").monoLabel(size: 11)
+                        Text(vm.strings.greeting(hour: Calendar.current.component(.hour, from: Date())))
+                            .font(ESFont.sans(30, weight: .heavy))
+                            .tracking(-1)
+                        Text(vm.strings.whatsMissing)
+                            .font(ESFont.sans(30, weight: .heavy))
+                            .tracking(-1)
+                            .foregroundStyle(ESColor.muted)
                     }
-                    .foregroundStyle(ESColor.muted)
+                    Spacer()
+                    languageToggle
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 16)
-
-                // Headline
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Eternal Scan").monoLabel(size: 10)
-                    Text("Morning,")
-                        .font(ESFont.sans(30, weight: .heavy))
-                        .tracking(-1)
-                    Text("what's missing?")
-                        .font(ESFont.sans(30, weight: .heavy))
-                        .tracking(-1)
-                        .foregroundStyle(ESColor.muted)
-                }
-                .padding(.horizontal, 20)
+                .padding(.top, 12)
                 .padding(.bottom, 24)
 
                 // Camera widget (hero)
@@ -58,6 +47,11 @@ struct DashboardView: View {
 
                 // AI text widget
                 aiWidget
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 12)
+
+                // Voice ordering widget
+                voiceWidget
                     .padding(.horizontal, 20)
                     .padding(.bottom, 24)
 
@@ -78,7 +72,7 @@ struct DashboardView: View {
                 Spacer(minLength: 32)
 
                 HStack {
-                    Text("V1.0 · Live Catalog Ready").monoLabel(size: 10)
+                    Text("V1.0 · Live Catalog Ready").monoLabel(size: 11)
                     Spacer()
                     Image(systemName: "bolt.fill")
                         .font(.system(size: 10))
@@ -91,6 +85,39 @@ struct DashboardView: View {
     }
 
     // MARK: Widgets
+
+    /// EN / हिं segmented toggle. Both options stay visible so switching
+    /// back never requires reading the "wrong" language.
+    private var languageToggle: some View {
+        Button(action: vm.toggleLanguage) {
+            HStack(spacing: 0) {
+                Text("EN")
+                    .font(ESFont.mono(11, weight: .bold))
+                    .foregroundStyle(vm.language == .english ? .white : ESColor.muted)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(
+                        Capsule().fill(vm.language == .english ? ESColor.foreground : .clear)
+                    )
+                Text("हिं")
+                    .font(ESFont.sans(12, weight: .bold))
+                    .foregroundStyle(vm.language == .hindi ? .white : ESColor.muted)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule().fill(vm.language == .hindi ? ESColor.foreground : .clear)
+                    )
+            }
+            .padding(3)
+            .background(
+                Capsule()
+                    .fill(ESColor.surface)
+                    .overlay(Capsule().stroke(ESColor.border, lineWidth: 1))
+            )
+            .contentShape(Capsule())
+        }
+        .accessibilityLabel(vm.language == .english ? "Switch to Hindi" : "Switch to English")
+    }
 
     private var cameraWidget: some View {
         Button(action: vm.openCamera) {
@@ -117,7 +144,7 @@ struct DashboardView: View {
 
                 // Copy
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Snap to\n\(Text("reorder.").foregroundStyle(ESColor.primary))")
+                    Text("\(vm.strings.snapPart1)\(Text(vm.strings.snapPart2).foregroundStyle(ESColor.primary))")
                         .foregroundStyle(.white)
                         .font(ESFont.sans(26, weight: .heavy))
                         .tracking(-1.2)
@@ -126,7 +153,7 @@ struct DashboardView: View {
                         Circle()
                             .fill(ESColor.primary)
                             .frame(width: 4, height: 4)
-                        Text("ReSnap packaging").monoLabel(size: 10, color: .white.opacity(0.6))
+                        Text(vm.strings.snapCaption).monoLabel(size: 11, color: .white.opacity(0.6))
                     }
                 }
                 .padding(24)
@@ -134,6 +161,8 @@ struct DashboardView: View {
             .aspectRatio(4/3, contentMode: .fit)
         }
         .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(vm.strings.snapPart1)\(vm.strings.snapPart2) \(vm.strings.snapCaption). Opens the camera.")
     }
 
     private var aiWidget: some View {
@@ -148,22 +177,31 @@ struct DashboardView: View {
                             RoundedRectangle(cornerRadius: 9, style: .continuous)
                                 .fill(ESColor.ai)
                         )
-                    Text("Describe \(Text("a meal.").foregroundStyle(ESColor.ai))")
+                    Text("\(vm.strings.describePart1)\(Text(vm.strings.describePart2).foregroundStyle(ESColor.ai))")
                         .foregroundStyle(ESColor.foreground)
                         .font(ESFont.sans(15, weight: .heavy))
                         .tracking(-0.3)
                 }
-                HStack(spacing: 6) {
-                    Text("PASTA ARRABBIATA FOR 4")
+                HStack(spacing: 8) {
+                    Text(vm.strings.mealPlaceholder)
                         .font(ESFont.mono(11, weight: .bold))
                         .kerning(1.2)
                         .foregroundStyle(ESColor.muted)
                         .lineLimit(1)
                     Spacer()
+                    // Inner button wins the tap: jump straight to voice input
+                    Button(action: vm.openVoice) {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 28, height: 28)
+                            .background(Circle().fill(ESColor.primary))
+                    }
+                    .accessibilityLabel(vm.strings.speakYourOrder)
                     Image(systemName: "arrow.right")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(.white)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 28, height: 28)
                         .background(Circle().fill(ESColor.foreground))
                 }
                 .padding(.leading, 14)
@@ -191,11 +229,55 @@ struct DashboardView: View {
             )
         }
         .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(vm.strings.describePart1)\(vm.strings.describePart2) Opens meal search.")
+    }
+
+    private var voiceWidget: some View {
+        Button(action: vm.openVoice) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.18))
+                        .frame(width: 52, height: 52)
+                    Image(systemName: "mic.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(vm.strings.speakYourOrder)
+                        .font(ESFont.sans(19, weight: .heavy))
+                        .tracking(-0.6)
+                        .foregroundStyle(.white)
+                    Text(vm.strings.speakSublabel)
+                        .monoLabel(size: 11, color: .white.opacity(0.7))
+                }
+
+                Spacer()
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(ESColor.primary)
+                    .frame(width: 32, height: 32)
+                    .background(Circle().fill(Color.white))
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(ESColor.primary)
+                    .shadow(color: ESColor.primary.opacity(0.3), radius: 12, y: 5)
+            )
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(vm.strings.speakYourOrder) Opens voice ordering.")
     }
 
     private var recipesGrid: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Popular Quick Meals").monoLabel(size: 10)
+            Text(vm.strings.popularQuickMeals).monoLabel(size: 11)
                 .padding(.horizontal, 20)
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -247,6 +329,8 @@ struct DashboardView: View {
                             )
                         }
                         .buttonStyle(PressableStyle())
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("\(recipe.title). \(recipe.desc). Searches this recipe.")
                     }
                 }
                 .padding(.horizontal, 20)
@@ -257,9 +341,9 @@ struct DashboardView: View {
     private var frequently: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Frequently Reordered").monoLabel(size: 10)
+                Text(vm.strings.frequentlyReordered).monoLabel(size: 11)
                 Spacer()
-                Text("04").monoLabel(size: 10, color: Color.black.opacity(0.3))
+                Text("04").monoLabel(size: 11, color: Color.black.opacity(0.3))
             }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                 ForEach(Self.frequentlyItems, id: \.glyph) { item in
@@ -271,7 +355,7 @@ struct DashboardView: View {
                                     .stroke(ESColor.border, lineWidth: 1)
                             )
                         Text(item.glyph)
-                            .font(ESFont.mono(9, weight: .bold))
+                            .font(ESFont.mono(11, weight: .bold))
                             .kerning(1.4)
                             .foregroundStyle(Color.white.opacity(0.92))
                             .padding(8)
@@ -289,7 +373,7 @@ struct DashboardView: View {
             }
         }) {
             HStack {
-                Text("Resume cart · \(vm.cartCount)")
+                Text("\(vm.strings.resumeCart) · \(vm.cartCount)")
                     .font(ESFont.mono(11, weight: .heavy))
                     .kerning(1.6)
                     .textCase(.uppercase)
@@ -303,6 +387,7 @@ struct DashboardView: View {
             .background(RoundedRectangle(cornerRadius: 20).fill(ESColor.foreground))
         }
         .buttonStyle(PressableStyle())
+        .accessibilityLabel("\(vm.strings.resumeCart), \(vm.cartCount) items. Opens checkout.")
     }
 
     private struct FreqItem {

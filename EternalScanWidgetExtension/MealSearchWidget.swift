@@ -124,6 +124,7 @@ struct MealSearchWidgetEntryView: View {
     @Environment(\.widgetFamily) private var family
 
     private static let deepLink = URL(string: "eternalscan://meal?autoReturn=true")!
+    private static let voiceDeepLink = URL(string: "eternalscan://voice")!
 
     var body: some View {
         Group {
@@ -188,7 +189,18 @@ struct MealSearchWidgetEntryView: View {
                     .monoLabel(size: 9)
                     .padding(.bottom, 8)
 
-                fauxInputRow(placeholder: entry.daypart.placeholder)
+                HStack(spacing: 6) {
+                    fauxInputRow(placeholder: entry.daypart.placeholder)
+                    // Cross-link into voice ordering (Link works in medium)
+                    Link(destination: Self.voiceDeepLink) {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 30, height: 30)
+                            .background(Circle().fill(ESColor.primary))
+                    }
+                    .accessibilityLabel("Speak your order")
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .ignore)

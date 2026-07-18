@@ -37,6 +37,8 @@ struct ContentView: View {
                     CameraSheet()
                 case .text:
                     TextInputSheet()
+                case .voice:
+                    VoiceSheet()
                 }
             }
             .environmentObject(vm)

@@ -8,6 +8,7 @@ import Foundation
 enum AppDeepLink {
     case scan
     case meal(query: String?)
+    case voice
 
     init?(url: URL) {
         // Scheme and host are case-insensitive per RFC 3986.
@@ -15,6 +16,8 @@ enum AppDeepLink {
         switch url.host?.lowercased() {
         case "scan":
             self = .scan
+        case "voice":
+            self = .voice
         case "meal":
             let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?
                 .queryItems?

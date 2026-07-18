@@ -33,6 +33,10 @@ check("meal with simple query", mealQuery(parse("eternalscan://meal?query=Pasta&
 check("meal with encoded spaces", mealQuery(parse("eternalscan://meal?query=Pasta%20Arrabbiata%20for%204")) == "Pasta Arrabbiata for 4")
 check("meal with emoji query", mealQuery(parse("eternalscan://meal?query=%F0%9F%8D%95")) == "🍕")
 
+// -- Voice host -------------------------------------------------------------
+check("voice host parses", { if case .voice? = parse("eternalscan://voice") { return true }; return false }())
+check("voice uppercase host", { if case .voice? = parse("eternalscan://VOICE") { return true }; return false }())
+
 // -- Case sensitivity -------------------------------------------------------
 check("uppercase host MEAL", mealQuery(parse("eternalscan://MEAL?query=Pasta")) == "Pasta",
       detail: "host should be case-insensitive")

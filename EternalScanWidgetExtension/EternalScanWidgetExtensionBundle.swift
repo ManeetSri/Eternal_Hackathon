@@ -13,6 +13,7 @@ struct EternalScanWidgetBundle: WidgetBundle {
     var body: some Widget {
         EternalScanWidget()
         MealSearchWidget()
+        SpeakToOrderWidget()
     }
 }
 

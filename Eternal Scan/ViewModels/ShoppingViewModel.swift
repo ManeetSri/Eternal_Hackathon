@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import AVFoundation
 
 enum Screen {
     case dashboard
@@ -8,14 +9,22 @@ enum Screen {
     case order
 }
 
-enum SheetKind: Identifiable {
+enum SheetKind: String, Identifiable {
     case camera
     case text
-    var id: String { self == .camera ? "camera" : "text" }
+    case voice
+    var id: String { rawValue }
 }
 
 @MainActor
 final class ShoppingViewModel: ObservableObject {
+    @Published var language: AppLanguage = AppLanguage(
+        rawValue: UserDefaults.standard.string(forKey: "appLanguage") ?? ""
+    ) ?? .english {
+        didSet { UserDefaults.standard.set(language.rawValue, forKey: "appLanguage") }
+    }
+    var strings: AppStrings { AppStrings(language) }
+
     @Published var query: String = ""
     @Published var detectedIngredients: [String] = []
     @Published var matchedProducts: [Product] = []
@@ -38,6 +47,9 @@ final class ShoppingViewModel: ObservableObject {
     let repository: BlinkitRepository
     let cameraService: CameraService
     let aiService: OnDeviceAIService
+    let voiceService = VoiceInputService()
+    private let speechSynthesizer = AVSpeechSynthesizer()
+    private var lastInputWasVoice = false
     
     init(
         repository: BlinkitRepository = LocalBlinkitRepository(),
@@ -72,6 +84,11 @@ final class ShoppingViewModel: ObservableObject {
     }
     
     // Actions
+    func toggleLanguage() {
+        Haptics.selection()
+        language = language == .english ? .hindi : .english
+    }
+
     func openCamera() {
         Haptics.tap()
         sheet = .camera
@@ -82,6 +99,38 @@ final class ShoppingViewModel: ObservableObject {
         sheet = .text
     }
 
+    func openVoice() {
+        Haptics.tap()
+        voiceService.onFinish = { [weak self] text in
+            self?.finishVoiceOrder(text)
+        }
+        sheet = .voice
+    }
+
+    /// Final transcript from the voice sheet: run the meal search and
+    /// read the outcome back so the whole loop stays eyes-free.
+    func finishVoiceOrder(_ text: String) {
+        query = String(text.prefix(140))
+        lastInputWasVoice = true
+        sheet = nil
+        searchByIntentOrText()
+    }
+
+    private func speakResultSummary() {
+        let inStock = matchedProducts.filter { $0.inStock }
+        let utteranceText: String
+        if inStock.isEmpty {
+            utteranceText = strings.spokenNoResults
+        } else {
+            let total = inStock.prefix(6).reduce(0) { $0 + $1.price }
+            utteranceText = strings.spokenSummary(count: inStock.count, rupees: Int(total))
+        }
+        let utterance = AVSpeechUtterance(string: utteranceText)
+        utterance.voice = AVSpeechSynthesisVoice(language: strings.spokenVoiceCode)
+        utterance.rate = 0.48
+        speechSynthesizer.speak(utterance)
+    }
+
     func handleDeepLink(_ url: URL) {
         guard let link = AppDeepLink(url: url) else { return }
         isShowingResultsSheet = false
@@ -89,6 +138,8 @@ final class ShoppingViewModel: ObservableObject {
         switch link {
         case .scan:
             openCamera()
+        case .voice:
+            openVoice()
         case .meal(let prefill):
             if let prefill {
                 let trimmed = prefill.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -125,6 +176,10 @@ final class ShoppingViewModel: ObservableObject {
         matchProducts()
         matchedProducts.isEmpty ? Haptics.error() : Haptics.success()
         isShowingResultsSheet = true
+        if lastInputWasVoice {
+            lastInputWasVoice = false
+            speakResultSummary()
+        }
     }
 
     func searchByRecipeDirect(_ recipe: String) {

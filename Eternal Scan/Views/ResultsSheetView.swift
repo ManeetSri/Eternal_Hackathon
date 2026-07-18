@@ -24,8 +24,8 @@ struct ResultsSheetView: View {
                                     Image(systemName: "sparkles")
                                         .foregroundColor(ESColor.ai)
                                         .font(.system(size: 11, weight: .bold))
-                                    Text("Photo detected is of:")
-                                        .monoLabel(size: 9, color: ESColor.ai)
+                                    Text(vm.strings.photoDetectedOf)
+                                        .monoLabel(size: 11, color: ESColor.ai)
                                 }
                                 Text(vm.rawScannedText.isEmpty ? "No readable text detected" : vm.rawScannedText)
                                     .font(ESFont.sans(20, weight: .heavy))
@@ -49,7 +49,7 @@ struct ResultsSheetView: View {
                         // Ingredients list pills
                         if !vm.detectedIngredients.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Identified Ingredients").monoLabel(size: 9)
+                                Text(vm.strings.identifiedIngredients).monoLabel(size: 11)
                                     .padding(.horizontal, 20)
 
                                 ScrollView(.horizontal, showsIndicators: false) {
@@ -83,9 +83,9 @@ struct ResultsSheetView: View {
                                 Image(systemName: "shippingbox.fill")
                                     .font(.system(size: 40))
                                     .foregroundColor(ESColor.muted)
-                                Text("No matching products")
+                                Text(vm.strings.noMatchesTitle)
                                     .font(ESFont.sans(16, weight: .bold))
-                                Text("We couldn't find items matching these ingredients in our live catalog.")
+                                Text(vm.strings.noMatchesBody)
                                     .font(ESFont.sans(12))
                                     .foregroundColor(ESColor.muted)
                                     .multilineTextAlignment(.center)
@@ -97,7 +97,7 @@ struct ResultsSheetView: View {
                                 // 1. Scanned Match (Highly Confident Direct Matches)
                                 if !vm.directMatches.isEmpty {
                                     VStack(alignment: .leading, spacing: 12) {
-                                        Text("Direct Product Match").monoLabel(size: 9, color: ESColor.primary)
+                                        Text(vm.strings.directMatch).monoLabel(size: 11, color: ESColor.primary)
                                             .padding(.horizontal, 20)
                                         
                                         VStack(spacing: 12) {
@@ -112,7 +112,7 @@ struct ResultsSheetView: View {
                                 // 2. Relatable Items
                                 if !vm.relatableMatches.isEmpty {
                                     VStack(alignment: .leading, spacing: 12) {
-                                        Text(vm.directMatches.isEmpty ? "Matching Products" : "Relatable Options").monoLabel(size: 9)
+                                        Text(vm.directMatches.isEmpty ? vm.strings.matchingProducts : vm.strings.relatableOptions).monoLabel(size: 11)
                                             .padding(.horizontal, 20)
 
                                         VStack(spacing: 12) {
@@ -137,11 +137,11 @@ struct ResultsSheetView: View {
                     addAllButtonOverlay
                 }
             }
-            .navigationTitle(vm.isUsingCamera ? "AI Scan Inventory" : "Ingredients Found")
+            .navigationTitle(vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Close") {
+                    Button(vm.strings.close) {
                         vm.isShowingResultsSheet = false
                     }
                     .font(ESFont.sans(14, weight: .bold))
@@ -164,21 +164,21 @@ struct ResultsSheetView: View {
                         .lineLimit(1)
                     
                     Text("MATCH")
-                        .font(ESFont.mono(7, weight: .bold))
+                        .font(ESFont.mono(9, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                         .background(Capsule().fill(ESColor.primary))
                 }
                 
-                Text("\(product.brand) · \(product.unit)").monoLabel(size: 10)
+                Text("\(product.brand) · \(product.unit)").monoLabel(size: 11)
                 
                 HStack(spacing: 4) {
                     Circle()
                         .fill(product.inStock ? Color.green : Color.red)
                         .frame(width: 5, height: 5)
-                    Text(product.inStock ? "In Stock" : "Out of Stock")
-                        .font(ESFont.mono(8, weight: .bold))
+                    Text(product.inStock ? vm.strings.inStock : vm.strings.outOfStock)
+                        .font(ESFont.mono(9, weight: .bold))
                         .foregroundStyle(product.inStock ? Color.green : Color.red)
                 }
                 .padding(.top, 2)
@@ -200,20 +200,22 @@ struct ResultsSheetView: View {
                         HStack(spacing: 3) {
                             Image(systemName: "plus")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("Add")
-                                .font(ESFont.mono(10, weight: .bold))
+                            Text(vm.strings.add)
+                                .font(ESFont.mono(11, weight: .bold))
                         }
                         .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 11)
                         .background(
                             Capsule().fill(ESColor.foreground)
                         )
+                        .contentShape(Capsule())
                     }
                     .buttonStyle(PressableStyle())
+                    .accessibilityLabel("\(vm.strings.add) \(product.name)")
                 } else {
-                    Text("Unavailable")
-                        .font(ESFont.mono(9, weight: .bold))
+                    Text(vm.strings.unavailable)
+                        .font(ESFont.mono(11, weight: .bold))
                         .foregroundColor(ESColor.muted)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -243,14 +245,14 @@ struct ResultsSheetView: View {
                     .foregroundColor(product.inStock ? ESColor.foreground : ESColor.muted)
                     .lineLimit(1)
                 
-                Text("\(product.brand) · \(product.unit)").monoLabel(size: 10)
+                Text("\(product.brand) · \(product.unit)").monoLabel(size: 11)
                 
                 HStack(spacing: 4) {
                     Circle()
                         .fill(product.inStock ? Color.green : Color.red)
                         .frame(width: 5, height: 5)
-                    Text(product.inStock ? "In Stock" : "Out of Stock")
-                        .font(ESFont.mono(8, weight: .bold))
+                    Text(product.inStock ? vm.strings.inStock : vm.strings.outOfStock)
+                        .font(ESFont.mono(9, weight: .bold))
                         .foregroundStyle(product.inStock ? Color.green : Color.red)
                 }
                 .padding(.top, 2)
@@ -272,20 +274,22 @@ struct ResultsSheetView: View {
                         HStack(spacing: 3) {
                             Image(systemName: "plus")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("Add")
-                                .font(ESFont.mono(10, weight: .bold))
+                            Text(vm.strings.add)
+                                .font(ESFont.mono(11, weight: .bold))
                         }
                         .foregroundColor(ESColor.foreground)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 11)
                         .background(
                             Capsule().stroke(ESColor.border, lineWidth: 1)
                         )
+                        .contentShape(Capsule())
                     }
                     .buttonStyle(PressableStyle())
+                    .accessibilityLabel("\(vm.strings.add) \(product.name)")
                 } else {
-                    Text("Unavailable")
-                        .font(ESFont.mono(9, weight: .bold))
+                    Text(vm.strings.unavailable)
+                        .font(ESFont.mono(11, weight: .bold))
                         .foregroundColor(ESColor.muted)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -320,7 +324,7 @@ struct ResultsSheetView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "cart.badge.plus.fill")
                         .font(.headline)
-                    Text("Add All Available (\(inStockCount) items)")
+                    Text(vm.strings.addAllAvailable(inStockCount))
                         .font(ESFont.mono(11, weight: .heavy))
                         .kerning(1.6)
                         .textCase(.uppercase)

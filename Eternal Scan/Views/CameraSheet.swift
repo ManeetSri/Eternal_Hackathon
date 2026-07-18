@@ -30,18 +30,19 @@ struct CameraSheet: View {
             VStack(spacing: 0) {
                 // Header
                 HStack {
-                    Text("Camera Scan")
+                    Text(vm.strings.cameraScan)
                         .font(ESFont.sans(20, weight: .heavy))
                         .tracking(-0.8)
                         .textCase(.uppercase)
                     Spacer()
                     Button { vm.sheet = nil } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(ESColor.foreground)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 44, height: 44)
                             .background(Circle().fill(Color.black.opacity(0.05)))
                     }
+                    .accessibilityLabel(vm.strings.close)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
@@ -61,7 +62,7 @@ struct CameraSheet: View {
                                         ProgressView()
                                             .tint(.white)
                                         Text("Initializing Camera...")
-                                            .font(ESFont.mono(10))
+                                            .font(ESFont.mono(11))
                                             .foregroundColor(.white.opacity(0.6))
                                     }
                                 }
@@ -113,8 +114,8 @@ struct CameraSheet: View {
                         // Corner status labels
                         VStack {
                             HStack {
-                                Text(vm.isLoading ? "· Matching to your last order" : "Frame the label")
-                                    .font(ESFont.mono(9, weight: .medium))
+                                Text(vm.isLoading ? vm.strings.matchingToLastOrder : vm.strings.frameTheLabel)
+                                    .font(ESFont.mono(11, weight: .medium))
                                     .kerning(1.4)
                                     .textCase(.uppercase)
                                     .foregroundStyle(Color.white.opacity(0.7))
@@ -127,8 +128,8 @@ struct CameraSheet: View {
                                     Circle()
                                         .fill(vm.isLoading ? ESColor.primary : Color.white.opacity(0.5))
                                         .frame(width: 6, height: 6)
-                                    Text(vm.isLoading ? "Scanning" : "Ready")
-                                        .font(ESFont.mono(9, weight: .medium))
+                                    Text(vm.isLoading ? vm.strings.scanning : vm.strings.ready)
+                                        .font(ESFont.mono(11, weight: .medium))
                                         .kerning(1.4)
                                         .textCase(.uppercase)
                                         .foregroundStyle(Color.white.opacity(0.7))
@@ -184,7 +185,7 @@ struct CameraSheet: View {
                             ProgressView()
                                 .tint(.white)
                         }
-                        Text(vm.isLoading ? "Matching…" : "Capture")
+                        Text(vm.isLoading ? vm.strings.matching : vm.strings.capture)
                             .font(ESFont.mono(11, weight: .heavy))
                             .kerning(2)
                             .textCase(.uppercase)
@@ -199,11 +200,12 @@ struct CameraSheet: View {
                     )
                 }
                 .disabled(vm.isLoading)
+                .accessibilityLabel(vm.strings.capture)
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
 
-                Text("AI matches to your usual brand & size")
-                    .monoLabel(size: 10)
+                Text(vm.strings.cameraFootnote)
+                    .monoLabel(size: 11)
                     .padding(.top, 10)
                     .padding(.bottom, 20)
             }
@@ -254,7 +256,7 @@ struct CameraSheet: View {
                         .font(ESFont.sans(14, weight: .bold))
                         .foregroundStyle(.white)
                     Text(simulatorTargets[selectedSimulatorTargetIndex].targetName)
-                        .font(ESFont.mono(9, weight: .medium))
+                        .font(ESFont.mono(11, weight: .medium))
                         .kerning(1)
                         .foregroundStyle(.cyan)
                 }

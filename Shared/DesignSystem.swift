@@ -24,37 +24,42 @@ enum ESColor {
 enum ESFont {
     // Inter for display / body, JetBrains Mono for micro-labels.
     // Falls back gracefully to system fonts when the custom families aren't bundled.
+    // Sizes pass through UIFontMetrics so the iOS "Larger Text" setting scales
+    // the whole app; in widget contexts the metric is identity, so widgets keep
+    // their designed sizes.
     static func sans(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        if UIFont(name: "Inter", size: size) != nil {
-            return .custom("Inter", size: size).weight(weight)
+        let scaled = UIFontMetrics.default.scaledValue(for: size)
+        if UIFont(name: "Inter", size: scaled) != nil {
+            return .custom("Inter", size: scaled).weight(weight)
         }
-        return .system(size: size, weight: weight, design: .default)
+        return .system(size: scaled, weight: weight, design: .default)
     }
 
     static func mono(_ size: CGFloat, weight: Font.Weight = .medium) -> Font {
-        if UIFont(name: "JetBrainsMono-Medium", size: size) != nil {
-            return .custom("JetBrainsMono-Medium", size: size).weight(weight)
+        let scaled = UIFontMetrics.default.scaledValue(for: size)
+        if UIFont(name: "JetBrainsMono-Medium", size: scaled) != nil {
+            return .custom("JetBrainsMono-Medium", size: scaled).weight(weight)
         }
-        return .system(size: size, weight: weight, design: .monospaced)
+        return .system(size: scaled, weight: weight, design: .monospaced)
     }
 }
 
 // MARK: - Modifiers
 
 struct MonoLabelStyle: ViewModifier {
-    var size: CGFloat = 10
+    var size: CGFloat = 11
     var color: Color = ESColor.muted
     func body(content: Content) -> some View {
         content
             .font(ESFont.mono(size, weight: .bold))
-            .kerning(1.6)
+            .kerning(1.2)
             .textCase(.uppercase)
             .foregroundStyle(color)
     }
 }
 
 extension View {
-    func monoLabel(size: CGFloat = 10, color: Color = ESColor.muted) -> some View {
+    func monoLabel(size: CGFloat = 11, color: Color = ESColor.muted) -> some View {
         modifier(MonoLabelStyle(size: size, color: color))
     }
 }

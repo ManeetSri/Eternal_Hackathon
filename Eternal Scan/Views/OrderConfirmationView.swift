@@ -9,16 +9,15 @@ import Combine
 struct OrderConfirmationView: View {
     @EnvironmentObject var vm: ShoppingViewModel
 
-    @State private var mins: Int = 8
-    @State private var secs: Int = 42
+    // Randomized per order so the demo doesn't always show 08:42.
+    @State private var mins: Int = Int.random(in: 7...11)
+    @State private var secs: Int = Int.random(in: 5...55)
     @State private var pulse: Bool = false
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 0) {
-            StatusBar(dark: true)
-
             Spacer()
 
             // Ping ring
@@ -41,15 +40,15 @@ struct OrderConfirmationView: View {
                 }
             }
 
-            Text("En Route")
+            Text(vm.strings.enRoute)
                 .font(ESFont.sans(28, weight: .heavy))
                 .tracking(-1)
                 .textCase(.uppercase)
                 .foregroundStyle(.white)
                 .padding(.top, 32)
 
-            Text("Order \(vm.orderID) · \(vm.cart.count) items")
-                .font(ESFont.mono(10, weight: .medium))
+            Text("Order \(vm.orderID) · \(vm.strings.itemsCount(vm.cart.count))")
+                .font(ESFont.mono(11, weight: .medium))
                 .kerning(3)
                 .textCase(.uppercase)
                 .foregroundStyle(Color.white.opacity(0.4))
@@ -62,12 +61,14 @@ struct OrderConfirmationView: View {
                     .font(ESFont.mono(48, weight: .heavy))
                     .foregroundStyle(.white)
                     .tracking(-1.5)
-                Text("Estimated arrival")
-                    .font(ESFont.mono(10, weight: .medium))
+                Text(vm.strings.estimatedArrival)
+                    .font(ESFont.mono(11, weight: .medium))
                     .kerning(3)
                     .textCase(.uppercase)
                     .foregroundStyle(Color.white.opacity(0.4))
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(vm.strings.estimatedArrival): \(mins) minutes")
             .padding(24)
             .frame(maxWidth: .infinity)
             .background(
@@ -89,8 +90,8 @@ struct OrderConfirmationView: View {
             }
             .padding(.top, 24)
 
-            Text("Rider assigned · Packing")
-                .font(ESFont.mono(10, weight: .medium))
+            Text(vm.strings.riderStatus)
+                .font(ESFont.mono(11, weight: .medium))
                 .kerning(2)
                 .textCase(.uppercase)
                 .foregroundStyle(Color.white.opacity(0.4))
@@ -98,35 +99,20 @@ struct OrderConfirmationView: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
-                Button {} label: {
-                    Text("Track Live Map")
-                        .font(ESFont.mono(11, weight: .heavy))
-                        .kerning(2)
-                        .textCase(.uppercase)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                }
-
-                Button(action: vm.backHome) {
-                    Text("Back to Home")
-                        .font(ESFont.mono(11, weight: .heavy))
-                        .kerning(2)
-                        .textCase(.uppercase)
-                        .foregroundStyle(ESColor.foreground)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .fill(Color.white)
-                        )
-                }
+            Button(action: vm.backHome) {
+                Text(vm.strings.backToHome)
+                    .font(ESFont.mono(11, weight: .heavy))
+                    .kerning(2)
+                    .textCase(.uppercase)
+                    .foregroundStyle(ESColor.foreground)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(Color.white)
+                    )
             }
+            .buttonStyle(PressableStyle())
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
