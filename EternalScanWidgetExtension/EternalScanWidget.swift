@@ -1,43 +1,25 @@
-//
-//  EternalScanWidget.swift
-//  EternalScanWidgetExtension
-//
-
 import WidgetKit
 import SwiftUI
 
-// MARK: - Widget Entry
 struct EternalScanWidgetEntry: TimelineEntry {
     let date: Date
 }
 
-// MARK: - Widget Provider
 struct EternalScanWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> EternalScanWidgetEntry {
         EternalScanWidgetEntry(date: Date())
     }
 
     func getSnapshot(in context: Context, completion: @escaping (EternalScanWidgetEntry) -> ()) {
-        let entry = EternalScanWidgetEntry(date: Date())
-        completion(entry)
+        completion(EternalScanWidgetEntry(date: Date()))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [EternalScanWidgetEntry] = []
-        let currentDate = Date()
-
-        for hourOffset in 0..<12 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = EternalScanWidgetEntry(date: entryDate)
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+        let timeline = Timeline(entries: [EternalScanWidgetEntry(date: Date())], policy: .never)
         completion(timeline)
     }
 }
 
-// MARK: - Widget View
 struct EternalScanWidgetEntryView: View {
     var entry: EternalScanWidgetProvider.Entry
 
@@ -51,43 +33,38 @@ struct EternalScanWidgetEntryView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
+            .ignoresSafeArea()
 
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 40))
+                    .font(.system(size: 32))
                     .foregroundColor(.white)
 
                 Text("Eternal Scan")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
-
-                Text("Tap to scan")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.9))
 
                 Spacer()
 
-                Link(destination: URL(string: "eternalscan://scan?flash=false&autoReturn=true")!) {
-                    HStack(spacing: 8) {
+                Link(destination: URL(string: "eternalscan://scan?autoReturn=true")!) {
+                    HStack(spacing: 6) {
                         Image(systemName: "camera.fill")
-                            .font(.system(size: 16))
-
-                        Text("Open Camera")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: 14))
+                        Text("Tap to Scan")
+                            .font(.system(size: 13, weight: .semibold))
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 44)
+                    .frame(height: 40)
                     .background(Color.white)
                     .foregroundColor(Color(red: 0.2, green: 0.6, blue: 0.8))
                     .cornerRadius(8)
                 }
             }
-            .padding(20)
+            .padding(16)
         }
     }
 }
 
-// MARK: - Widget Configuration
 struct EternalScanWidget: Widget {
     let kind: String = "EternalScanWidget"
 
@@ -99,8 +76,8 @@ struct EternalScanWidget: Widget {
             EternalScanWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Eternal Scan")
-        .description("Quick access to scan products with your camera")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .description("Quickly scan products with your camera")
+        .supportedFamilies([.systemSmall])
     }
 }
 
