@@ -12,6 +12,7 @@ struct Eternal_ScanApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .colorScheme(.light)
         }
     }
 }

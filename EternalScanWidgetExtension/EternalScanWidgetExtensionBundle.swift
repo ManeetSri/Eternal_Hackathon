@@ -9,8 +9,10 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct EternalScanWidgetExtensionBundle: WidgetBundle {
+struct EternalScanWidgetBundle: WidgetBundle {
     var body: some Widget {
-        EternalScanWidgetExtension()
+        EternalScanWidget()
+        MealSearchWidget()
     }
 }
+

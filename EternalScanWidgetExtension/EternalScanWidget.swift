@@ -1,10 +1,9 @@
 //
-//  EternalScanWidgetEntry.swift
+//  EternalScanWidget.swift
 //  Eternal Scan
 //
 //  Created by Maneet@MLL on 18/07/26.
 //
-
 
 import WidgetKit
 import SwiftUI
@@ -31,46 +30,51 @@ struct EternalScanWidgetProvider: TimelineProvider {
 struct EternalScanWidgetEntryView: View {
     var entry: EternalScanWidgetProvider.Entry
 
+    private static let deepLink = URL(string: "eternalscan://scan?autoReturn=true")!
+
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "camera.viewfinder")
-                .font(.system(size: 32))
-                .foregroundColor(.white)
-
-            Text("Eternal Scan")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(.white)
-
-            Spacer()
-
-            Link(destination: URL(string: "eternalscan://scan?autoReturn=true")!) {
-                HStack(spacing: 6) {
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 14))
-                    Text("Tap to Scan")
-                        .font(.system(size: 13, weight: .semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
-                .background(Color.white)
-                .foregroundColor(Color(red: 0.2, green: 0.6, blue: 0.8))
-                .cornerRadius(8)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Spacer()
+                cameraBadge
             }
+
+            Spacer(minLength: 0)
+
+            (Text("Snap to\n").foregroundStyle(.white)
+             + Text("reorder.").foregroundStyle(ESColor.primary))
+                .font(ESFont.sans(23, weight: .heavy))
+                .tracking(-1.0)
+                .lineSpacing(-3)
+
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(ESColor.primary)
+                    .frame(width: 4, height: 4)
+                Text("Scan empty packaging")
+                    .monoLabel(size: 9, color: .white.opacity(0.65))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .padding(.top, 7)
         }
-        .padding(16)
-        .containerBackground(
-            for: .widget,
-            content: {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0.2, green: 0.6, blue: 0.8),
-                        Color(red: 0.1, green: 0.4, blue: 0.7)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .widgetURL(Self.deepLink)
+        .containerBackground(for: .widget) {
+            ESColor.foreground
+        }
+    }
+
+    private var cameraBadge: some View {
+        ZStack {
+            Image(systemName: "viewfinder")
+                .font(.system(size: 38, weight: .thin))
+                .foregroundStyle(ESColor.primary)
+            Image(systemName: "camera.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -84,8 +88,8 @@ struct EternalScanWidget: Widget {
         ) { entry in
             EternalScanWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Eternal Scan")
-        .description("Quickly scan products with your camera")
+        .configurationDisplayName("Snap to Reorder")
+        .description("Scan empty packaging to reorder items")
         .supportedFamilies([.systemSmall])
     }
 }

@@ -26,6 +26,9 @@ struct ContentView: View {
             .transition(.opacity.combined(with: .move(edge: .trailing)))
             .animation(.easeInOut(duration: 0.25), value: vm.screen)
         }
+        .onOpenURL { url in
+            vm.handleDeepLink(url)
+        }
         // Sheets for camera or text input
         .sheet(item: $vm.sheet) { kind in
             Group {

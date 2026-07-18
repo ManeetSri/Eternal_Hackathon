@@ -80,6 +80,21 @@ final class ShoppingViewModel: ObservableObject {
         sheet = .text
     }
 
+    func handleDeepLink(_ url: URL) {
+        guard let link = AppDeepLink(url: url) else { return }
+        isShowingResultsSheet = false
+        screen = .dashboard
+        switch link {
+        case .scan:
+            openCamera()
+        case .meal(let prefill):
+            if let prefill, !prefill.isEmpty {
+                query = prefill
+            }
+            openText()
+        }
+    }
+
     func backHome() {
         screen = .dashboard
         cart.removeAll()
