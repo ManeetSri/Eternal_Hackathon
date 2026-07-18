@@ -38,7 +38,7 @@ struct ContentView: View {
                 case .text:
                     TextInputSheet()
                 case .voice:
-                    VoiceSheet()
+                    VoiceSheet(voiceService: vm.voiceService)
                 }
             }
             .environmentObject(vm)

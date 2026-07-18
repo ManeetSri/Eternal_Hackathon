@@ -53,6 +53,28 @@ struct AppStrings {
     var voiceSilenceHint: String { t("Pauses finish automatically", "रुकते ही अपने आप पूरा हो जाएगा") }
     var voiceTryHint: String { t("Try — \"Maggi for two\"", "बोलिए — \"दो लोगों के लिए मैगी\"") }
     var typeInstead: String { t("Type Instead", "टाइप करें") }
+    var voiceProcessing: String { t("Got it — searching…", "मिल गया — खोज रहे हैं…") }
+    var openSettings: String { t("Open Settings", "सेटिंग्स खोलें") }
+
+    func voiceError(_ error: VoiceError) -> String {
+        switch error {
+        case .micDenied:
+            return t("Microphone access is off. Allow it in Settings.",
+                     "माइक्रोफ़ोन बंद है। सेटिंग्स में चालू करें।")
+        case .speechDenied:
+            return t("Speech recognition is off. Allow it in Settings.",
+                     "स्पीच रिकग्निशन बंद है। सेटिंग्स में चालू करें।")
+        case .unavailable:
+            return t("Speech isn't available right now. Try typing instead.",
+                     "अभी बोलना उपलब्ध नहीं है। टाइप करके देखें।")
+        case .noSpeech:
+            return t("Didn't catch that. Tap the mic and try again.",
+                     "सुनाई नहीं दिया। माइक दबाकर फिर बोलें।")
+        case .failed:
+            return t("Something went wrong. Tap the mic to retry.",
+                     "कुछ गड़बड़ हुई। माइक दबाकर फिर कोशिश करें।")
+        }
+    }
 
     // MARK: Text sheet
     var aiAssistant: String { t("AI Assistant", "AI सहायक") }
