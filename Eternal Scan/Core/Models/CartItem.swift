@@ -1,7 +1,12 @@
-//
-//  CartItem.swift
-//  Eternal Scan
-//
-//  Created by Maneet@MLL on 18/07/26.
-//
+import Foundation
 
+struct CartItem: Identifiable {
+    let id = UUID()
+    let product: DetectedProduct
+    var quantity: Int
+    let pricePerUnit: Double
+
+    var totalPrice: Double {
+        Double(quantity) * pricePerUnit
+    }
+}

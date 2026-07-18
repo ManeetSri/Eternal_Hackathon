@@ -25,10 +25,12 @@ struct Eternal_ScanApp: App {
 
         switch url.host {
         case "scan":
-            // Open scanner from Shortcuts
-            shouldOpenScanner = true
             container.router.popToRoot()
             container.router.push(.scanner)
+
+        case "meal":
+            container.router.popToRoot()
+            container.router.push(.mealInput)
 
         case "product":
             let components = URLComponents(url: url, resolvingAgainstBaseURL: false)

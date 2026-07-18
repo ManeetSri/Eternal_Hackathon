@@ -14,4 +14,5 @@ protocol CameraServiceProtocol: AnyObject {
     func startSession() async throws
     func stopSession()
     func configureSession() throws
+    func capturePhoto() async throws -> Data
 }

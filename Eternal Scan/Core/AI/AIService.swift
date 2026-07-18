@@ -32,24 +32,32 @@ final class AIService: AIServiceProtocol {
         from image: UIImage,
         ocrResult: OCRResult
     ) async throws -> DetectedProduct {
-        // Extract visual features using Vision framework
+        print("[AIService] Starting product recognition using local vision...")
+
+        // 1. Detect objects in image using Apple Vision
+        let detectedObjects = try await visionProcessor.detectObjects(from: image)
+        let objectLabels = detectedObjects.map { $0.identifier.lowercased() }.joined(separator: ", ")
+        print("[AIService] Detected objects: \(objectLabels)")
+
+        // 2. Extract visual features
         let imageFeatures = try await visionProcessor.extractFeatures(from: image)
 
-        // Combine OCR text (barcode + text recognition)
-        let combinedText = ocrResult.extractedText + " " + ocrResult.observations.joined(separator: " ")
-        print("[AIService] Combined OCR Text: '\(combinedText)'")
+        // 3. Combine OCR text + barcode + object detection
+        let combinedText = ocrResult.extractedText + " " + ocrResult.observations.joined(separator: " ") + " " + objectLabels
+        print("[AIService] Combined Recognition Text: '\(combinedText)'")
 
-        // Prepare barcodes array
+        // 4. Prepare barcodes array
         let barcodes = ocrResult.detectedBarcode.map { [$0] } ?? []
 
-        // Use Apple AI for semantic matching
+        // 5. Match against 100-item local database
         let match = await matchingEngine.matchProduct(
             ocrText: combinedText,
             barcodes: barcodes,
-            imageFeatures: imageFeatures
+            imageFeatures: imageFeatures,
+            detectedObjects: detectedObjects
         )
 
-        // Convert to DetectedProduct
+        // 6. Return database match if found
         if let match = match {
             print("[AIService] Product Match: \(match.product.brand) \(match.product.name) (confidence: \(match.confidence))")
             return DetectedProduct(
@@ -62,22 +70,59 @@ final class AIService: AIServiceProtocol {
             )
         }
 
-        // Fallback if no match found
-        print("[AIService] No product match found")
-        return DetectedProduct(
-            brand: "Unknown",
-            name: "Product not found",
-            variant: nil,
-            size: nil,
-            category: nil,
-            confidence: 0
-        )
+        // 7. Fallback: Create product from OCR text alone
+        print("[AIService] No database match found. Creating product from OCR...")
+        let fallbackProduct = await matchingEngine.createProductFromOCR(text: combinedText)
+        print("[AIService] Fallback product created: \(fallbackProduct.brand) \(fallbackProduct.name)")
+        return fallbackProduct
     }
+
 }
 
 // MARK: - Vision Processor for Feature Extraction
 @MainActor
 final class VisionProcessor {
+    struct DetectedObject {
+        let identifier: String
+        let confidence: Float
+    }
+
+    func detectObjects(from image: UIImage) async throws -> [DetectedObject] {
+        guard let cgImage = image.cgImage else {
+            throw VisionError.invalidImage
+        }
+
+        // Use rectangle detection as a proxy for object detection
+        let rectangleRequest = VNDetectRectanglesRequest()
+        rectangleRequest.maximumObservations = 5
+
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try handler.perform([rectangleRequest])
+
+        // Infer object type from rectangles and image properties
+        var detectedObjects: [DetectedObject] = []
+
+        if let rectangles = rectangleRequest.results as? [VNRectangleObservation] {
+            if !rectangles.isEmpty {
+                // Rectangles detected - likely a packaged product
+                detectedObjects.append(DetectedObject(identifier: "package", confidence: 0.7))
+                detectedObjects.append(DetectedObject(identifier: "product", confidence: 0.8))
+            }
+        }
+
+        // Analyze image properties for object hints
+        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+        let aspectRatio = imageSize.width / imageSize.height
+
+        // Heuristic: portrait-oriented images often contain bottles/cans
+        if aspectRatio < 0.8 {
+            detectedObjects.append(DetectedObject(identifier: "bottle", confidence: 0.5))
+            detectedObjects.append(DetectedObject(identifier: "can", confidence: 0.4))
+        }
+
+        return detectedObjects
+    }
+
     func extractFeatures(from image: UIImage) async throws -> ProductImageFeatures {
         guard let cgImage = image.cgImage else {
             throw VisionError.invalidImage

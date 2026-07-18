@@ -38,89 +38,101 @@ final class ScannerViewModel {
     func capturePhoto() {
         isCapturing = true
         Task {
-            await Task.sleep(1_000_000_000)
-
-            // Create a mock product image for testing
-            if let mockImage = createMockProductImage() {
-                if let imageData = mockImage.jpegData(compressionQuality: 0.8) {
-                    container.capturedImageData = imageData
-                    container.router.push(.processing)
-                } else {
-                    print("Failed to convert image to JPEG data")
-                }
-            } else {
-                print("Failed to create mock image")
+            #if targetEnvironment(simulator)
+            print("[ScannerViewModel] Simulator detected. Using mock product image...")
+            if let mockImage = createMockProductImage(),
+               let imageData = mockImage.jpegData(compressionQuality: 0.85) {
+                container.capturedImageData = imageData
+                container.router.push(.processing)
             }
-
+            #else
+            do {
+                let imageData = try await cameraService.capturePhoto()
+                container.capturedImageData = imageData
+                container.router.push(.processing)
+            } catch {
+                print("Failed to capture photo: \(error.localizedDescription)")
+            }
+            #endif
             isCapturing = false
         }
     }
 
     private func createMockProductImage() -> UIImage? {
-        // Create a more realistic product image for OCR testing
-        let size = CGSize(width: 600, height: 800)
+        let size = CGSize(width: 600, height: 900)
         let renderer = UIGraphicsImageRenderer(size: size)
 
         let image = renderer.image { context in
-            // White background
-            UIColor.white.setFill()
+            // Off-white/cream background
+            UIColor(red: 0.95, green: 0.94, blue: 0.92, alpha: 1.0).setFill()
             context.fill(CGRect(origin: .zero, size: size))
 
-            // Product box/packaging simulation
-            UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0).setFill()
-            context.fill(CGRect(x: 50, y: 100, width: 500, height: 600))
+            // Coca-Cola bottle shape (red bottle)
+            UIColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0).setFill()
+            let bottlePath = UIBezierPath()
+            bottlePath.move(to: CGPoint(x: 150, y: 200))
+            bottlePath.addCurve(to: CGPoint(x: 450, y: 200),
+                               controlPoint1: CGPoint(x: 200, y: 150),
+                               controlPoint2: CGPoint(x: 400, y: 150))
+            bottlePath.addLine(to: CGPoint(x: 450, y: 650))
+            bottlePath.addCurve(to: CGPoint(x: 150, y: 650),
+                               controlPoint1: CGPoint(x: 450, y: 680),
+                               controlPoint2: CGPoint(x: 150, y: 680))
+            bottlePath.close()
+            bottlePath.fill()
 
-            // Silver/metallic color (MacBook)
-            UIColor(red: 0.85, green: 0.85, blue: 0.85, alpha: 1.0).setFill()
-            context.fill(CGRect(x: 75, y: 150, width: 450, height: 350))
+            // White label area
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 120, y: 300, width: 360, height: 350))
 
-            // Apple logo area
-            let appleLogoText = "🍎"
-            let appleAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 80),
+            // Brand text - HUGE for OCR
+            let brandText = "Coca-Cola"
+            let brandAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: 64),
+                .foregroundColor: UIColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 1.0)
             ]
-            let appleLogo = NSAttributedString(string: appleLogoText, attributes: appleAttributes)
-            appleLogo.draw(in: CGRect(x: 250, y: 180, width: 100, height: 100))
+            let brandString = NSAttributedString(string: brandText, attributes: brandAttributes)
+            brandString.draw(in: CGRect(x: 120, y: 320, width: 360, height: 90))
 
-            // Main text - LARGE and bold for better OCR
-            let mainText = "MacBook Pro"
-            let mainAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.boldSystemFont(ofSize: 48),
-                .foregroundColor: UIColor.black
-            ]
-            let mainString = NSAttributedString(string: mainText, attributes: mainAttributes)
-            mainString.draw(in: CGRect(x: 80, y: 320, width: 440, height: 80))
-
-            // Specifications text
-            let specsText = "16-inch\nM3 Max\n36GB Unified Memory"
-            let specsAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 28, weight: .semibold),
+            // Product variant - LARGE
+            let variantText = "Classic"
+            let variantAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 42, weight: .semibold),
                 .foregroundColor: UIColor.darkGray
             ]
-            let specsString = NSAttributedString(string: specsText, attributes: specsAttributes)
-            specsString.draw(in: CGRect(x: 100, y: 420, width: 400, height: 120))
+            let variantString = NSAttributedString(string: variantText, attributes: variantAttributes)
+            variantString.draw(in: CGRect(x: 120, y: 430, width: 360, height: 70))
 
-            // Model/SKU
-            let modelText = "Model: MK183LL/A"
-            let modelAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 20),
+            // Size text
+            let sizeText = "500 ml"
+            let sizeAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 32, weight: .regular),
                 .foregroundColor: UIColor.gray
             ]
-            let modelString = NSAttributedString(string: modelText, attributes: modelAttributes)
-            modelString.draw(in: CGRect(x: 100, y: 570, width: 400, height: 50))
+            let sizeString = NSAttributedString(string: sizeText, attributes: sizeAttributes)
+            sizeString.draw(in: CGRect(x: 120, y: 510, width: 360, height: 60))
 
-            // Barcode simulation
+            // Barcode area - VERY DISTINCTIVE black box
             UIColor.black.setFill()
-            context.fill(CGRect(x: 100, y: 650, width: 400, height: 80))
+            context.fill(CGRect(x: 100, y: 720, width: 400, height: 100))
 
-            // Barcode number
-            let barcodeText = "0194252208480"
+            // Barcode number - white text for contrast
+            let barcodeText = "8901000100102"
             let barcodeAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedDigitSystemFont(ofSize: 18, weight: .regular),
+                .font: UIFont.monospacedDigitSystemFont(ofSize: 24, weight: .bold),
                 .foregroundColor: UIColor.white
             ]
             let barcodeString = NSAttributedString(string: barcodeText, attributes: barcodeAttributes)
-            barcodeString.draw(in: CGRect(x: 120, y: 665, width: 360, height: 50))
+            barcodeString.draw(in: CGRect(x: 110, y: 735, width: 380, height: 70))
+
+            // Product code at bottom
+            let codeText = "Product ID: Coca-Cola-Classic-500ml"
+            let codeAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+                .foregroundColor: UIColor.darkGray
+            ]
+            let codeString = NSAttributedString(string: codeText, attributes: codeAttributes)
+            codeString.draw(in: CGRect(x: 80, y: 830, width: 440, height: 50))
         }
 
         return image

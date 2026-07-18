@@ -1,0 +1,1319 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "barcode": "8901000100102",
+      "brand": "Coca-Cola",
+      "name": "Coca-Cola Classic",
+      "description": "Refreshing carbonated cola beverage",
+      "category": "beverages",
+      "tags": ["cola", "drink", "soft-drink", "beverage", "coke"],
+      "variants": [
+        {"id": "1.1", "name": "Regular", "size": "250ml", "unit": "ml"},
+        {"id": "1.2", "name": "Regular", "size": "500ml", "unit": "ml"},
+        {"id": "1.3", "name": "Regular", "size": "1L", "unit": "ml"},
+        {"id": "1.4", "name": "Diet", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "2",
+      "barcode": "8901000100119",
+      "brand": "Coca-Cola",
+      "name": "Sprite Lemon-Lime",
+      "description": "Crisp lemon-lime flavored soft drink",
+      "category": "beverages",
+      "tags": ["sprite", "lemon", "lime", "soft-drink", "citrus"],
+      "variants": [
+        {"id": "2.1", "name": "Regular", "size": "500ml", "unit": "ml"},
+        {"id": "2.2", "name": "Regular", "size": "1L", "unit": "ml"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "3",
+      "barcode": "8901000100126",
+      "brand": "Coca-Cola",
+      "name": "Fanta Orange",
+      "description": "Vibrant orange flavored carbonated drink",
+      "category": "beverages",
+      "tags": ["fanta", "orange", "soft-drink", "fruit"],
+      "variants": [
+        {"id": "3.1", "name": "Regular", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "4",
+      "barcode": "8901063500001",
+      "brand": "Lay's",
+      "name": "Lay's Potato Chips",
+      "description": "Crispy salted potato chips",
+      "category": "snacks",
+      "tags": ["chips", "snack", "crispy", "potato", "lays"],
+      "variants": [
+        {"id": "4.1", "name": "Salted", "size": "50g", "unit": "g"},
+        {"id": "4.2", "name": "Masala", "size": "50g", "unit": "g"},
+        {"id": "4.3", "name": "Cream & Onion", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "5",
+      "barcode": "8901063500008",
+      "brand": "Doritos",
+      "name": "Doritos Nacho Cheese",
+      "description": "Crunchy nacho cheese flavored tortilla chips",
+      "category": "snacks",
+      "tags": ["doritos", "chips", "nacho", "cheese", "snack"],
+      "variants": [
+        {"id": "5.1", "name": "Regular", "size": "40g", "unit": "g"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "6",
+      "barcode": "8901200200001",
+      "brand": "Amul",
+      "name": "Amul Milk",
+      "description": "Pure cow milk",
+      "category": "dairy",
+      "tags": ["milk", "dairy", "fresh", "amul"],
+      "variants": [
+        {"id": "6.1", "name": "Regular", "size": "500ml", "unit": "ml"},
+        {"id": "6.2", "name": "Toned", "size": "1L", "unit": "ml"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "7",
+      "barcode": "8901234567890",
+      "brand": "Britannia",
+      "name": "Britannia Good Day Cookies",
+      "description": "Crunchy biscuits with chocolate chips",
+      "category": "snacks",
+      "tags": ["biscuits", "cookies", "snack", "britannia", "chocolate"],
+      "variants": [
+        {"id": "7.1", "name": "Chocolate", "size": "150g", "unit": "g"}
+      ],
+      "pricing": 35.0
+    },
+    {
+      "id": "8",
+      "barcode": "8901111111111",
+      "brand": "MDH",
+      "name": "MDH Garam Masala",
+      "description": "Aromatic spice blend",
+      "category": "spices",
+      "tags": ["spice", "garam-masala", "seasoning", "mdh"],
+      "variants": [
+        {"id": "8.1", "name": "Standard", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "9",
+      "barcode": "0194252208480",
+      "brand": "Apple",
+      "name": "MacBook Pro",
+      "description": "Powerful laptop with M-series chip",
+      "category": "electronics",
+      "tags": ["macbook", "laptop", "apple", "computer", "m3", "m4"],
+      "variants": [
+        {"id": "9.1", "name": "16-inch M3 Max", "size": "36GB", "unit": "Memory"},
+        {"id": "9.2", "name": "14-inch M3 Pro", "size": "18GB", "unit": "Memory"}
+      ],
+      "pricing": 199999.0
+    },
+    {
+      "id": "10",
+      "barcode": "0885909050036",
+      "brand": "Apple",
+      "name": "iPhone 15",
+      "description": "Latest smartphone with advanced camera",
+      "category": "electronics",
+      "tags": ["iphone", "smartphone", "apple", "phone", "mobile"],
+      "variants": [
+        {"id": "10.1", "name": "Black", "size": "128GB", "unit": "Storage"},
+        {"id": "10.2", "name": "Blue", "size": "256GB", "unit": "Storage"}
+      ],
+      "pricing": 79999.0
+    },
+    {
+      "id": "11",
+      "barcode": "8901300400001",
+      "brand": "Everest",
+      "name": "Everest Garam Masala",
+      "description": "Premium spice blend",
+      "category": "spices",
+      "tags": ["spice", "garam-masala", "everest", "seasoning"],
+      "variants": [
+        {"id": "11.1", "name": "Standard", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "12",
+      "barcode": "8901500600001",
+      "brand": "Shan",
+      "name": "Shan Biryani Masala",
+      "description": "Authentic biryani spice mix",
+      "category": "spices",
+      "tags": ["spice", "biryani", "masala", "shan"],
+      "variants": [
+        {"id": "12.1", "name": "Standard", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 30.0
+    },
+    {
+      "id": "13",
+      "barcode": "8901600700001",
+      "brand": "Nestlé",
+      "name": "Nescafé Instant Coffee",
+      "description": "Instant coffee powder",
+      "category": "beverages",
+      "tags": ["coffee", "instant", "nescafe", "drink"],
+      "variants": [
+        {"id": "13.1", "name": "Regular", "size": "50g", "unit": "g"},
+        {"id": "13.2", "name": "Dark Roast", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "14",
+      "barcode": "8901700800001",
+      "brand": "Lipton",
+      "name": "Lipton Yellow Label Tea",
+      "description": "Premium black tea",
+      "category": "beverages",
+      "tags": ["tea", "black tea", "lipton", "drink"],
+      "variants": [
+        {"id": "14.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "15",
+      "barcode": "8901800900001",
+      "brand": "Bisleri",
+      "name": "Bisleri Mineral Water",
+      "description": "Pure mineral drinking water",
+      "category": "beverages",
+      "tags": ["water", "mineral water", "drinking", "bisleri"],
+      "variants": [
+        {"id": "15.1", "name": "Regular", "size": "500ml", "unit": "ml"},
+        {"id": "15.2", "name": "Regular", "size": "1L", "unit": "ml"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "16",
+      "barcode": "8901901000001",
+      "brand": "Tropicana",
+      "name": "Tropicana Orange Juice",
+      "description": "Fresh orange juice",
+      "category": "beverages",
+      "tags": ["juice", "orange", "tropicana", "drink"],
+      "variants": [
+        {"id": "16.1", "name": "Regular", "size": "200ml", "unit": "ml"},
+        {"id": "16.2", "name": "Regular", "size": "1L", "unit": "ml"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "17",
+      "barcode": "8902001100001",
+      "brand": "Real",
+      "name": "Real Apple Juice",
+      "description": "100% apple juice",
+      "category": "beverages",
+      "tags": ["juice", "apple", "real", "drink"],
+      "variants": [
+        {"id": "17.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "18",
+      "barcode": "8902101200001",
+      "brand": "Colgate",
+      "name": "Colgate Toothpaste",
+      "description": "Whitening toothpaste",
+      "category": "personal_care",
+      "tags": ["toothpaste", "oral care", "colgate", "dental"],
+      "variants": [
+        {"id": "18.1", "name": "Regular", "size": "100ml", "unit": "ml"}
+      ],
+      "pricing": 55.0
+    },
+    {
+      "id": "19",
+      "barcode": "8902201300001",
+      "brand": "Head & Shoulders",
+      "name": "Head & Shoulders Shampoo",
+      "description": "Anti-dandruff shampoo",
+      "category": "personal_care",
+      "tags": ["shampoo", "hair care", "dandruff"],
+      "variants": [
+        {"id": "19.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "20",
+      "barcode": "8902301400001",
+      "brand": "Dove",
+      "name": "Dove Soap",
+      "description": "Moisturizing beauty soap",
+      "category": "personal_care",
+      "tags": ["soap", "bath", "dove", "moisturizing"],
+      "variants": [
+        {"id": "20.1", "name": "Regular", "size": "75g", "unit": "g"}
+      ],
+      "pricing": 30.0
+    },
+    {
+      "id": "21",
+      "barcode": "8902401500001",
+      "brand": "Basmati",
+      "name": "India Gate Basmati Rice",
+      "description": "Premium basmati rice",
+      "category": "grocery",
+      "tags": ["rice", "basmati", "grain", "food"],
+      "variants": [
+        {"id": "21.1", "name": "Classic", "size": "1kg", "unit": "kg"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "22",
+      "barcode": "8902501600001",
+      "brand": "Aashirvaad",
+      "name": "Aashirvaad Atta",
+      "description": "Whole wheat flour",
+      "category": "grocery",
+      "tags": ["flour", "wheat", "atta", "food"],
+      "variants": [
+        {"id": "22.1", "name": "Regular", "size": "1kg", "unit": "kg"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "23",
+      "barcode": "8902601700001",
+      "brand": "Fortune",
+      "name": "Fortune Refined Oil",
+      "description": "Refined cooking oil",
+      "category": "grocery",
+      "tags": ["oil", "cooking", "fortune", "food"],
+      "variants": [
+        {"id": "23.1", "name": "Regular", "size": "1L", "unit": "ml"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "24",
+      "barcode": "8902701800001",
+      "brand": "Maggi",
+      "name": "Maggi Noodles",
+      "description": "Instant noodles",
+      "category": "grocery",
+      "tags": ["noodles", "instant", "maggi", "food"],
+      "variants": [
+        {"id": "24.1", "name": "Chicken", "size": "70g", "unit": "g"},
+        {"id": "24.2", "name": "Masala", "size": "70g", "unit": "g"}
+      ],
+      "pricing": 12.0
+    },
+    {
+      "id": "25",
+      "barcode": "8902801900001",
+      "brand": "ITC",
+      "name": "Sunfeast Marie Biscuits",
+      "description": "Crispy digestive biscuits",
+      "category": "snacks",
+      "tags": ["biscuits", "digestive", "sunfeast", "snack"],
+      "variants": [
+        {"id": "25.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "26",
+      "barcode": "8902902000001",
+      "brand": "Parle",
+      "name": "Parle-G Biscuits",
+      "description": "Popular glucose biscuits",
+      "category": "snacks",
+      "tags": ["biscuits", "glucose", "parle", "snack"],
+      "variants": [
+        {"id": "26.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 25.0
+    },
+    {
+      "id": "27",
+      "barcode": "8903002100001",
+      "brand": "Cadbury",
+      "name": "Cadbury Dairy Milk",
+      "description": "Milk chocolate bar",
+      "category": "snacks",
+      "tags": ["chocolate", "candy", "cadbury", "milk"],
+      "variants": [
+        {"id": "27.1", "name": "Regular", "size": "40g", "unit": "g"},
+        {"id": "27.2", "name": "Regular", "size": "160g", "unit": "g"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "28",
+      "barcode": "8903102200001",
+      "brand": "Ferrero Rocher",
+      "name": "Ferrero Rocher Chocolates",
+      "description": "Hazelnut wafer chocolate",
+      "category": "snacks",
+      "tags": ["chocolate", "candy", "ferrero", "hazelnut"],
+      "variants": [
+        {"id": "28.1", "name": "Regular", "size": "125g", "unit": "g"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "29",
+      "barcode": "8903202300001",
+      "brand": "Patanjali",
+      "name": "Patanjali Honey",
+      "description": "Pure natural honey",
+      "category": "grocery",
+      "tags": ["honey", "natural", "patanjali", "food"],
+      "variants": [
+        {"id": "29.1", "name": "Pure", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 200.0
+    },
+    {
+      "id": "30",
+      "barcode": "8903302400001",
+      "brand": "Mother Dairy",
+      "name": "Mother Dairy Paneer",
+      "description": "Fresh cottage cheese",
+      "category": "dairy",
+      "tags": ["paneer", "cheese", "mother dairy", "dairy"],
+      "variants": [
+        {"id": "30.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "31",
+      "barcode": "8903402500001",
+      "brand": "Britannia",
+      "name": "Britannia Cheese Slices",
+      "description": "Processed cheese slices",
+      "category": "dairy",
+      "tags": ["cheese", "slices", "britannia", "dairy"],
+      "variants": [
+        {"id": "31.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "32",
+      "barcode": "8903502600001",
+      "brand": "Hilfe",
+      "name": "Hilfe Yogurt",
+      "description": "Fresh yogurt",
+      "category": "dairy",
+      "tags": ["yogurt", "dairy", "food"],
+      "variants": [
+        {"id": "32.1", "name": "Plain", "size": "400g", "unit": "g"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "33",
+      "barcode": "8903602700001",
+      "brand": "Pepsi",
+      "name": "Pepsi Cola",
+      "description": "Cola soft drink",
+      "category": "beverages",
+      "tags": ["cola", "pepsi", "drink", "soft-drink"],
+      "variants": [
+        {"id": "33.1", "name": "Regular", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "34",
+      "barcode": "8903702800001",
+      "brand": "Mountain Dew",
+      "name": "Mountain Dew Green",
+      "description": "Citrus flavored soft drink",
+      "category": "beverages",
+      "tags": ["dew", "citrus", "drink", "soft-drink"],
+      "variants": [
+        {"id": "34.1", "name": "Regular", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "35",
+      "barcode": "8903802900001",
+      "brand": "Thums Up",
+      "name": "Thums Up Cola",
+      "description": "Indian cola drink",
+      "category": "beverages",
+      "tags": ["cola", "thums up", "drink", "soft-drink"],
+      "variants": [
+        {"id": "35.1", "name": "Regular", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "36",
+      "barcode": "8903903000001",
+      "brand": "Frooti",
+      "name": "Frooti Mango Drink",
+      "description": "Mango flavored drink",
+      "category": "beverages",
+      "tags": ["mango", "frooti", "drink", "juice"],
+      "variants": [
+        {"id": "36.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "37",
+      "barcode": "8904003100001",
+      "brand": "Appy",
+      "name": "Appy Fizz Apple Drink",
+      "description": "Apple flavored carbonated drink",
+      "category": "beverages",
+      "tags": ["apple", "appy", "drink", "fizz"],
+      "variants": [
+        {"id": "37.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 30.0
+    },
+    {
+      "id": "38",
+      "barcode": "8904103200001",
+      "brand": "Minute Maid",
+      "name": "Minute Maid Pulpy Orange",
+      "description": "Orange juice with pulp",
+      "category": "beverages",
+      "tags": ["juice", "orange", "minute maid", "drink"],
+      "variants": [
+        {"id": "38.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 35.0
+    },
+    {
+      "id": "39",
+      "barcode": "8904203300001",
+      "brand": "Cheetos",
+      "name": "Cheetos Puffs",
+      "description": "Crispy cheese puffs",
+      "category": "snacks",
+      "tags": ["chips", "cheese", "cheetos", "snack"],
+      "variants": [
+        {"id": "39.1", "name": "Regular", "size": "40g", "unit": "g"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "40",
+      "barcode": "8904303400001",
+      "brand": "Kurkure",
+      "name": "Kurkure Namkeen",
+      "description": "Crispy savory snack",
+      "category": "snacks",
+      "tags": ["snack", "namkeen", "kurkure", "crispy"],
+      "variants": [
+        {"id": "40.1", "name": "Regular", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 10.0
+    },
+    {
+      "id": "41",
+      "barcode": "8904403500001",
+      "brand": "Choco Fills",
+      "name": "Choco Fills Biscuits",
+      "description": "Chocolate filled biscuits",
+      "category": "snacks",
+      "tags": ["biscuits", "chocolate", "choco fills", "snack"],
+      "variants": [
+        {"id": "41.1", "name": "Regular", "size": "75g", "unit": "g"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "42",
+      "barcode": "8904503600001",
+      "brand": "Oreo",
+      "name": "Oreo Cookies",
+      "description": "Chocolate cream cookies",
+      "category": "snacks",
+      "tags": ["cookies", "chocolate", "oreo", "snack"],
+      "variants": [
+        {"id": "42.1", "name": "Regular", "size": "120g", "unit": "g"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "43",
+      "barcode": "8904603700001",
+      "brand": "Good Day",
+      "name": "Good Day Cashew Cookies",
+      "description": "Cashew flavored cookies",
+      "category": "snacks",
+      "tags": ["cookies", "cashew", "good day", "snack"],
+      "variants": [
+        {"id": "43.1", "name": "Regular", "size": "150g", "unit": "g"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "44",
+      "barcode": "8904703800001",
+      "brand": "Peek Freans",
+      "name": "Peek Freans Monaco",
+      "description": "Wheat and honey biscuits",
+      "category": "snacks",
+      "tags": ["biscuits", "honey", "peek freans", "snack"],
+      "variants": [
+        {"id": "44.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "45",
+      "barcode": "8904803900001",
+      "brand": "Sunfeast",
+      "name": "Sunfeast Dark Fantasy",
+      "description": "Dark chocolate cookies",
+      "category": "snacks",
+      "tags": ["cookies", "chocolate", "sunfeast", "snack"],
+      "variants": [
+        {"id": "45.1", "name": "Regular", "size": "75g", "unit": "g"}
+      ],
+      "pricing": 30.0
+    },
+    {
+      "id": "46",
+      "barcode": "8904904000001",
+      "brand": "5 Star",
+      "name": "5 Star Chocolate",
+      "description": "Chocolate bar with almonds",
+      "category": "snacks",
+      "tags": ["chocolate", "candy", "5 star", "almonds"],
+      "variants": [
+        {"id": "46.1", "name": "Regular", "size": "40g", "unit": "g"}
+      ],
+      "pricing": 15.0
+    },
+    {
+      "id": "47",
+      "barcode": "8905004100001",
+      "brand": "Kinder",
+      "name": "Kinder Joy",
+      "description": "Chocolate with toy surprise",
+      "category": "snacks",
+      "tags": ["chocolate", "toy", "kinder", "candy"],
+      "variants": [
+        {"id": "47.1", "name": "Regular", "size": "20g", "unit": "g"}
+      ],
+      "pricing": 25.0
+    },
+    {
+      "id": "48",
+      "barcode": "8905104200001",
+      "brand": "Snickers",
+      "name": "Snickers Bar",
+      "description": "Peanut and chocolate bar",
+      "category": "snacks",
+      "tags": ["chocolate", "peanut", "snickers", "candy"],
+      "variants": [
+        {"id": "48.1", "name": "Regular", "size": "40g", "unit": "g"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "49",
+      "barcode": "8905204300001",
+      "brand": "Amul",
+      "name": "Amul Ice Cream",
+      "description": "Vanilla ice cream",
+      "category": "dairy",
+      "tags": ["ice cream", "amul", "vanilla", "dairy"],
+      "variants": [
+        {"id": "49.1", "name": "Vanilla", "size": "400ml", "unit": "ml"}
+      ],
+      "pricing": 100.0
+    },
+    {
+      "id": "50",
+      "barcode": "8905304400001",
+      "brand": "Havmor",
+      "name": "Havmor Ice Cream",
+      "description": "Premium ice cream",
+      "category": "dairy",
+      "tags": ["ice cream", "havmor", "dairy"],
+      "variants": [
+        {"id": "50.1", "name": "Mixed Fruit", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "51",
+      "barcode": "8905404500001",
+      "brand": "Sunflower",
+      "name": "Sunflower Oil",
+      "description": "Pure sunflower cooking oil",
+      "category": "grocery",
+      "tags": ["oil", "cooking", "sunflower", "food"],
+      "variants": [
+        {"id": "51.1", "name": "Regular", "size": "1L", "unit": "ml"}
+      ],
+      "pricing": 130.0
+    },
+    {
+      "id": "52",
+      "barcode": "8905504600001",
+      "brand": "Ghee",
+      "name": "Amul Ghee",
+      "description": "Pure clarified butter",
+      "category": "grocery",
+      "tags": ["ghee", "butter", "amul", "food"],
+      "variants": [
+        {"id": "52.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 500.0
+    },
+    {
+      "id": "53",
+      "barcode": "8905604700001",
+      "brand": "Dal",
+      "name": "Arhar Dal",
+      "description": "Split pigeon peas",
+      "category": "grocery",
+      "tags": ["dal", "lentils", "arhar", "food"],
+      "variants": [
+        {"id": "53.1", "name": "Regular", "size": "1kg", "unit": "kg"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "54",
+      "barcode": "8905704800001",
+      "brand": "Sugar",
+      "name": "Refined Sugar",
+      "description": "White sugar crystals",
+      "category": "grocery",
+      "tags": ["sugar", "refined", "food"],
+      "variants": [
+        {"id": "54.1", "name": "Regular", "size": "1kg", "unit": "kg"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "55",
+      "barcode": "8905804900001",
+      "brand": "Salt",
+      "name": "Iodized Salt",
+      "description": "Table salt with iodine",
+      "category": "grocery",
+      "tags": ["salt", "iodized", "food"],
+      "variants": [
+        {"id": "55.1", "name": "Regular", "size": "1kg", "unit": "kg"}
+      ],
+      "pricing": 20.0
+    },
+    {
+      "id": "56",
+      "barcode": "8905905000001",
+      "brand": "Black Pepper",
+      "name": "Black Pepper Powder",
+      "description": "Ground black pepper",
+      "category": "spices",
+      "tags": ["pepper", "spice", "powder"],
+      "variants": [
+        {"id": "56.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "57",
+      "barcode": "8906005100001",
+      "brand": "Turmeric",
+      "name": "Turmeric Powder",
+      "description": "Ground turmeric",
+      "category": "spices",
+      "tags": ["turmeric", "spice", "powder"],
+      "variants": [
+        {"id": "57.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "58",
+      "barcode": "8906105200001",
+      "brand": "Cinnamon",
+      "name": "Cinnamon Sticks",
+      "description": "Whole cinnamon sticks",
+      "category": "spices",
+      "tags": ["cinnamon", "spice"],
+      "variants": [
+        {"id": "58.1", "name": "Regular", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "59",
+      "barcode": "8906205300001",
+      "brand": "Cardamom",
+      "name": "Green Cardamom",
+      "description": "Whole green cardamom pods",
+      "category": "spices",
+      "tags": ["cardamom", "spice"],
+      "variants": [
+        {"id": "59.1", "name": "Regular", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 200.0
+    },
+    {
+      "id": "60",
+      "barcode": "8906305400001",
+      "brand": "Cumin",
+      "name": "Cumin Seeds",
+      "description": "Whole cumin seeds",
+      "category": "spices",
+      "tags": ["cumin", "seeds", "spice"],
+      "variants": [
+        {"id": "60.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "61",
+      "barcode": "8906405500001",
+      "brand": "Coriander",
+      "name": "Coriander Powder",
+      "description": "Ground coriander",
+      "category": "spices",
+      "tags": ["coriander", "powder", "spice"],
+      "variants": [
+        {"id": "61.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "62",
+      "barcode": "8906505600001",
+      "brand": "Cloves",
+      "name": "Cloves Whole",
+      "description": "Whole clove buds",
+      "category": "spices",
+      "tags": ["cloves", "spice"],
+      "variants": [
+        {"id": "62.1", "name": "Regular", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "63",
+      "barcode": "8906605700001",
+      "brand": "Bay Leaf",
+      "name": "Bay Leaves",
+      "description": "Dried bay leaves",
+      "category": "spices",
+      "tags": ["bay leaf", "leaf", "spice"],
+      "variants": [
+        {"id": "63.1", "name": "Regular", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 70.0
+    },
+    {
+      "id": "64",
+      "barcode": "8906705800001",
+      "brand": "Mustard",
+      "name": "Mustard Seeds",
+      "description": "Whole mustard seeds",
+      "category": "spices",
+      "tags": ["mustard", "seeds", "spice"],
+      "variants": [
+        {"id": "64.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "65",
+      "barcode": "8906805900001",
+      "brand": "Fenugreek",
+      "name": "Fenugreek Seeds",
+      "description": "Whole methi seeds",
+      "category": "spices",
+      "tags": ["fenugreek", "methi", "seeds", "spice"],
+      "variants": [
+        {"id": "65.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 45.0
+    },
+    {
+      "id": "66",
+      "barcode": "8906906000001",
+      "brand": "Red Chili",
+      "name": "Red Chili Powder",
+      "description": "Ground red chili",
+      "category": "spices",
+      "tags": ["chili", "powder", "spice", "hot"],
+      "variants": [
+        {"id": "66.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "67",
+      "barcode": "8907006100001",
+      "brand": "Falafel",
+      "name": "Falafel Mix",
+      "description": "Ready-made falafel mix",
+      "category": "grocery",
+      "tags": ["falafel", "mix", "food"],
+      "variants": [
+        {"id": "67.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 90.0
+    },
+    {
+      "id": "68",
+      "barcode": "8907106200001",
+      "brand": "Pasta",
+      "name": "Barilla Pasta",
+      "description": "Italian wheat pasta",
+      "category": "grocery",
+      "tags": ["pasta", "wheat", "barilla", "food"],
+      "variants": [
+        {"id": "68.1", "name": "Spaghetti", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "69",
+      "barcode": "8907206300001",
+      "brand": "Sauce",
+      "name": "Heinz Tomato Sauce",
+      "description": "Tomato ketchup",
+      "category": "grocery",
+      "tags": ["sauce", "ketchup", "tomato", "food"],
+      "variants": [
+        {"id": "69.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "70",
+      "barcode": "8907306400001",
+      "brand": "Sauce",
+      "name": "Maggi Soy Sauce",
+      "description": "Soy sauce condiment",
+      "category": "grocery",
+      "tags": ["sauce", "soy", "condiment", "food"],
+      "variants": [
+        {"id": "70.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "71",
+      "barcode": "8907406500001",
+      "brand": "Pickle",
+      "name": "Priya Mango Pickle",
+      "description": "Tangy mango pickle",
+      "category": "grocery",
+      "tags": ["pickle", "mango", "food"],
+      "variants": [
+        {"id": "71.1", "name": "Regular", "size": "400g", "unit": "g"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "72",
+      "barcode": "8907506600001",
+      "brand": "Jam",
+      "name": "Kissan Jam",
+      "description": "Fruit jam spread",
+      "category": "grocery",
+      "tags": ["jam", "fruit", "spread", "food"],
+      "variants": [
+        {"id": "72.1", "name": "Strawberry", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "73",
+      "barcode": "8907606700001",
+      "brand": "Peanut Butter",
+      "name": "Skippy Peanut Butter",
+      "description": "Creamy peanut butter",
+      "category": "grocery",
+      "tags": ["peanut butter", "spread", "food"],
+      "variants": [
+        {"id": "73.1", "name": "Regular", "size": "400g", "unit": "g"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "74",
+      "barcode": "8907706800001",
+      "brand": "Bread",
+      "name": "Britannia White Bread",
+      "description": "Soft white bread",
+      "category": "grocery",
+      "tags": ["bread", "white", "food"],
+      "variants": [
+        {"id": "74.1", "name": "Regular", "size": "400g", "unit": "g"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "75",
+      "barcode": "8907806900001",
+      "brand": "Chips",
+      "name": "Bingo Chips",
+      "description": "Fried potato chips",
+      "category": "snacks",
+      "tags": ["chips", "potato", "bingo", "snack"],
+      "variants": [
+        {"id": "75.1", "name": "Spanish Tomato", "size": "40g", "unit": "g"}
+      ],
+      "pricing": 10.0
+    },
+    {
+      "id": "76",
+      "barcode": "8907907000001",
+      "brand": "Namkeen",
+      "name": "Haldirams Namkeen",
+      "description": "Mixed savory snack",
+      "category": "snacks",
+      "tags": ["namkeen", "snack", "haldirams"],
+      "variants": [
+        {"id": "76.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "77",
+      "barcode": "8908007100001",
+      "brand": "Mixture",
+      "name": "Chandni Mixture",
+      "description": "Spiced savory mixture",
+      "category": "snacks",
+      "tags": ["mixture", "snack", "savory"],
+      "variants": [
+        {"id": "77.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 70.0
+    },
+    {
+      "id": "78",
+      "barcode": "8908107200001",
+      "brand": "Chikki",
+      "name": "Britania Chikki",
+      "description": "Brittle nut snack",
+      "category": "snacks",
+      "tags": ["chikki", "brittle", "snack"],
+      "variants": [
+        {"id": "78.1", "name": "Peanut", "size": "60g", "unit": "g"}
+      ],
+      "pricing": 30.0
+    },
+    {
+      "id": "79",
+      "barcode": "8908207300001",
+      "brand": "Chakli",
+      "name": "Haldirams Chakli",
+      "description": "Spiral savory snack",
+      "category": "snacks",
+      "tags": ["chakli", "snack", "savory"],
+      "variants": [
+        {"id": "79.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 40.0
+    },
+    {
+      "id": "80",
+      "barcode": "8908307400001",
+      "brand": "Samosa",
+      "name": "Haldirams Samosa",
+      "description": "Fried triangular pastry",
+      "category": "snacks",
+      "tags": ["samosa", "snack", "fried"],
+      "variants": [
+        {"id": "80.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "81",
+      "barcode": "8908407500001",
+      "brand": "Cashews",
+      "name": "Planters Cashews",
+      "description": "Roasted cashew nuts",
+      "category": "snacks",
+      "tags": ["cashews", "nuts", "snack"],
+      "variants": [
+        {"id": "81.1", "name": "Roasted", "size": "150g", "unit": "g"}
+      ],
+      "pricing": 200.0
+    },
+    {
+      "id": "82",
+      "barcode": "8908507600001",
+      "brand": "Almonds",
+      "name": "California Almonds",
+      "description": "Premium almonds",
+      "category": "snacks",
+      "tags": ["almonds", "nuts", "snack"],
+      "variants": [
+        {"id": "82.1", "name": "Raw", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 250.0
+    },
+    {
+      "id": "83",
+      "barcode": "8908607700001",
+      "brand": "Walnuts",
+      "name": "Walnuts Pieces",
+      "description": "Chopped walnut pieces",
+      "category": "snacks",
+      "tags": ["walnuts", "nuts", "snack"],
+      "variants": [
+        {"id": "83.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 300.0
+    },
+    {
+      "id": "84",
+      "barcode": "8908707800001",
+      "brand": "Raisins",
+      "name": "Kishmish Raisins",
+      "description": "Dried grapes",
+      "category": "snacks",
+      "tags": ["raisins", "dried fruit", "snack"],
+      "variants": [
+        {"id": "84.1", "name": "Regular", "size": "200g", "unit": "g"}
+      ],
+      "pricing": 150.0
+    },
+    {
+      "id": "85",
+      "barcode": "8908807900001",
+      "brand": "Dates",
+      "name": "Ajwa Dates",
+      "description": "Premium dates",
+      "category": "snacks",
+      "tags": ["dates", "dried fruit", "snack"],
+      "variants": [
+        {"id": "85.1", "name": "Premium", "size": "250g", "unit": "g"}
+      ],
+      "pricing": 200.0
+    },
+    {
+      "id": "86",
+      "barcode": "8908908000001",
+      "brand": "Coconut",
+      "name": "Desiccated Coconut",
+      "description": "Dried coconut flakes",
+      "category": "grocery",
+      "tags": ["coconut", "dried", "food"],
+      "variants": [
+        {"id": "86.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "87",
+      "barcode": "8909008100001",
+      "brand": "Sesame",
+      "name": "Sesame Seeds",
+      "description": "Whole sesame seeds",
+      "category": "grocery",
+      "tags": ["sesame", "seeds", "food"],
+      "variants": [
+        {"id": "87.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "88",
+      "barcode": "8909108200001",
+      "brand": "Milk Powder",
+      "name": "Amul Milk Powder",
+      "description": "Powdered milk",
+      "category": "dairy",
+      "tags": ["milk powder", "powder", "dairy"],
+      "variants": [
+        {"id": "88.1", "name": "Regular", "size": "400g", "unit": "g"}
+      ],
+      "pricing": 200.0
+    },
+    {
+      "id": "89",
+      "barcode": "8909208300001",
+      "brand": "Butter",
+      "name": "Amul Butter",
+      "description": "Fresh butter",
+      "category": "dairy",
+      "tags": ["butter", "dairy"],
+      "variants": [
+        {"id": "89.1", "name": "Regular", "size": "100g", "unit": "g"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "90",
+      "barcode": "8909308400001",
+      "brand": "Cream",
+      "name": "Amul Cream",
+      "description": "Fresh cream",
+      "category": "dairy",
+      "tags": ["cream", "dairy"],
+      "variants": [
+        {"id": "90.1", "name": "Regular", "size": "200ml", "unit": "ml"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "91",
+      "barcode": "8909408500001",
+      "brand": "Lassi",
+      "name": "Amul Lassi",
+      "description": "Buttermilk drink",
+      "category": "beverages",
+      "tags": ["lassi", "buttermilk", "drink", "dairy"],
+      "variants": [
+        {"id": "91.1", "name": "Plain", "size": "500ml", "unit": "ml"},
+        {"id": "91.2", "name": "Mango", "size": "500ml", "unit": "ml"}
+      ],
+      "pricing": 50.0
+    },
+    {
+      "id": "92",
+      "barcode": "8909508600001",
+      "brand": "Chaas",
+      "name": "Mother Dairy Chaas",
+      "description": "Traditional buttermilk",
+      "category": "beverages",
+      "tags": ["chaas", "buttermilk", "drink"],
+      "variants": [
+        {"id": "92.1", "name": "Regular", "size": "400ml", "unit": "ml"}
+      ],
+      "pricing": 30.0
+    },
+    {
+      "id": "93",
+      "barcode": "8909608700001",
+      "brand": "Boost",
+      "name": "Boost Energy Drink",
+      "description": "Malted energy drink",
+      "category": "beverages",
+      "tags": ["boost", "energy", "drink"],
+      "variants": [
+        {"id": "93.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 100.0
+    },
+    {
+      "id": "94",
+      "barcode": "8909708800001",
+      "brand": "Horlicks",
+      "name": "Horlicks Malted Drink",
+      "description": "Nutritious malted beverage",
+      "category": "beverages",
+      "tags": ["horlicks", "malted", "drink"],
+      "variants": [
+        {"id": "94.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 120.0
+    },
+    {
+      "id": "95",
+      "barcode": "8909808900001",
+      "brand": "Bournvita",
+      "name": "Bournvita Chocolate",
+      "description": "Chocolate malted drink",
+      "category": "beverages",
+      "tags": ["bournvita", "chocolate", "drink"],
+      "variants": [
+        {"id": "95.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 110.0
+    },
+    {
+      "id": "96",
+      "barcode": "8909909000001",
+      "brand": "Complan",
+      "name": "Complan Nutrition",
+      "description": "Complete nutrition drink",
+      "category": "beverages",
+      "tags": ["complan", "nutrition", "drink"],
+      "variants": [
+        {"id": "96.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 130.0
+    },
+    {
+      "id": "97",
+      "barcode": "8910009100001",
+      "brand": "Dabur",
+      "name": "Dabur Chyawanprash",
+      "description": "Ayurvedic health supplement",
+      "category": "personal_care",
+      "tags": ["ayurvedic", "health", "supplement"],
+      "variants": [
+        {"id": "97.1", "name": "Regular", "size": "500g", "unit": "g"}
+      ],
+      "pricing": 200.0
+    },
+    {
+      "id": "98",
+      "barcode": "8910109200001",
+      "brand": "Vicks",
+      "name": "Vicks VapoRub",
+      "description": "Topical pain relief",
+      "category": "personal_care",
+      "tags": ["vicks", "pain relief", "topical"],
+      "variants": [
+        {"id": "98.1", "name": "Regular", "size": "50g", "unit": "g"}
+      ],
+      "pricing": 80.0
+    },
+    {
+      "id": "99",
+      "barcode": "8910209300001",
+      "brand": "Boroplus",
+      "name": "Boroplus Antiseptic Cream",
+      "description": "Antiseptic healing cream",
+      "category": "personal_care",
+      "tags": ["boroplus", "antiseptic", "cream"],
+      "variants": [
+        {"id": "99.1", "name": "Regular", "size": "30g", "unit": "g"}
+      ],
+      "pricing": 60.0
+    },
+    {
+      "id": "100",
+      "barcode": "8910309400001",
+      "brand": "Betadine",
+      "name": "Betadine Antiseptic Solution",
+      "description": "Antiseptic wound cleaner",
+      "category": "personal_care",
+      "tags": ["betadine", "antiseptic", "solution"],
+      "variants": [
+        {"id": "100.1", "name": "Regular", "size": "100ml", "unit": "ml"}
+      ],
+      "pricing": 90.0
+    }
+  ]
+}

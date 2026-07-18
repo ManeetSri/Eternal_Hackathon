@@ -40,20 +40,30 @@ struct HomeView: View {
             .frame(maxWidth: .infinity)
             .padding(AppTheme.Spacing.xl)
 
-            // Action Button Section
+            // Action Buttons Section
             VStack(spacing: AppTheme.Spacing.md) {
+                // Scan Button
                 PrimaryButton(
                     title: "Scan Product",
                     icon: "camera",
                     action: viewModel.navigateToScanner
                 )
 
+                // Meal Button
+                PrimaryButton(
+                    title: "Meal to Cart",
+                    icon: "sparkles",
+                    action: viewModel.navigateToMeal
+                )
+
                 VStack(spacing: AppTheme.Spacing.sm) {
                     Divider()
 
-                    Text("Tap to open camera")
-                        .font(AppTheme.Typography.caption2)
-                        .foregroundStyle(AppTheme.Colors.textSecondary)
+                    VStack(spacing: 4) {
+                        Text("Scan products or create a meal")
+                            .font(AppTheme.Typography.caption2)
+                            .foregroundStyle(AppTheme.Colors.textSecondary)
+                    }
                 }
             }
             .padding(AppTheme.Spacing.lg)

@@ -24,5 +24,9 @@ extension HomeViewModel {
     func navigateToScanner() {
         container.router.push(.scanner)
     }
+
+    func navigateToMeal() {
+        container.router.push(.mealInput)
+    }
 }
 

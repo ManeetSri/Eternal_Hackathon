@@ -32,4 +32,6 @@ enum AppRoute: Hashable {
     case processing
     case result
     case cart
+    case mealInput
+    case mealResult
 }

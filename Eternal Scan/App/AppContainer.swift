@@ -19,6 +19,10 @@ final class AppContainer {
     var capturedImageData: Data?
     var detectedProduct: DetectedProduct?
 
+    // Meal feature state
+    var mealAnalysis: MealParsingService.MealAnalysis?
+    var cartItems: [CartItem] = []
+
     init() {
         router = AppRouter()
         cameraService = CameraService()

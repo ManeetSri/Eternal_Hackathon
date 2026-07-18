@@ -27,6 +27,12 @@ struct RootView: View {
 
                     case .cart:
                         CartView(viewModel: CartViewModel(container: container))
+
+                    case .mealInput:
+                        MealInputView(container: container)
+
+                    case .mealResult:
+                        MealResultView(container: container)
                     }
                 }
         }

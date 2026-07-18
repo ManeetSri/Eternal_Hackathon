@@ -58,7 +58,8 @@ final class ProductMatchingEngine {
     func matchProduct(
         ocrText: String,
         barcodes: [String],
-        imageFeatures: ProductImageFeatures
+        imageFeatures: ProductImageFeatures,
+        detectedObjects: [VisionProcessor.DetectedObject] = []
     ) async -> ProductMatch? {
         // Priority-based matching strategy
 
@@ -67,17 +68,24 @@ final class ProductMatchingEngine {
             return barcodeMatch
         }
 
-        // 2. Semantic matching with NLP
-        let semanticMatches = await semanticProductMatch(ocrText)
+        // 2. Combine OCR text with detected object labels for better semantic matching
+        let enhancedText = ocrText + " " + detectedObjects.map { $0.identifier }.joined(separator: " ")
 
-        // 3. Visual features matching
+        // 3. Semantic matching with NLP
+        let semanticMatches = await semanticProductMatch(enhancedText)
+
+        // 4. Visual features matching
         let visualMatches = await visualProductMatch(imageFeatures)
 
-        // 4. Combine and score all factors
+        // 5. Object-based category matching
+        let objectCategoryMatches = matchByDetectedObjects(detectedObjects)
+
+        // 6. Combine and score all factors
         return combineMatches(
             semantic: semanticMatches,
             visual: visualMatches,
-            ocrText: ocrText
+            objectBased: objectCategoryMatches,
+            ocrText: enhancedText
         )
     }
 
@@ -322,10 +330,49 @@ final class ProductMatchingEngine {
         return 0.5
     }
 
+    // MARK: - Object Detection Based Matching
+    private func matchByDetectedObjects(_ detectedObjects: [VisionProcessor.DetectedObject]) -> [ProductMatch] {
+        var matches: [ProductMatch] = []
+
+        for product in productDatabase {
+            var objectScore: Float = 0.0
+
+            for detectedObject in detectedObjects {
+                let objectLabel = detectedObject.identifier.lowercased()
+
+                // Match object type against product category
+                if product.category.lowercased().contains(objectLabel) ||
+                   product.description.lowercased().contains(objectLabel) ||
+                   product.tags.contains(where: { $0.lowercased().contains(objectLabel) }) {
+                    objectScore += detectedObject.confidence * 0.7
+                }
+            }
+
+            if objectScore > 0.1 {
+                matches.append(
+                    ProductMatch(
+                        product: product,
+                        confidence: min(objectScore, 0.8),
+                        matchFactors: MatchFactors(
+                            barcodeMatch: 0,
+                            nameMatch: 0,
+                            semanticMatch: objectScore,
+                            visualMatch: 0,
+                            categoryMatch: 0
+                        )
+                    )
+                )
+            }
+        }
+
+        return matches.sorted { $0.confidence > $1.confidence }
+    }
+
     // MARK: - Combine All Matches
     private func combineMatches(
         semantic: [ProductMatch],
         visual: [ProductMatch],
+        objectBased: [ProductMatch] = [],
         ocrText: String
     ) -> ProductMatch? {
         var combinedScores: [String: (match: ProductMatch, totalScore: Float)] = [:]
@@ -356,18 +403,39 @@ final class ProductMatchingEngine {
             }
         }
 
+        // Add/combine object-based matches
+        for match in objectBased {
+            if let existing = combinedScores[match.product.id] {
+                let avgScore = (existing.totalScore + match.confidence) / 2.0
+                let combinedMatch = ProductMatch(
+                    product: existing.match.product,
+                    confidence: avgScore,
+                    matchFactors: MatchFactors(
+                        barcodeMatch: existing.match.matchFactors.barcodeMatch,
+                        nameMatch: existing.match.matchFactors.nameMatch,
+                        semanticMatch: existing.match.matchFactors.semanticMatch + match.matchFactors.semanticMatch,
+                        visualMatch: existing.match.matchFactors.visualMatch,
+                        categoryMatch: existing.match.matchFactors.categoryMatch
+                    )
+                )
+                combinedScores[match.product.id] = (combinedMatch, avgScore)
+            } else {
+                combinedScores[match.product.id] = (match, match.confidence)
+            }
+        }
+
         let bestMatch = combinedScores.values.max(by: { $0.totalScore < $1.totalScore })?.match
 
         // If no database match found, create product from OCR data
         if bestMatch == nil || bestMatch!.confidence < 0.5 {
-            return createProductFromOCR(text: ocrText)
+            return createProductFromOCRInternal(text: ocrText)
         }
 
         return bestMatch
     }
 
     // MARK: - Fallback: Create Product from OCR
-    private func createProductFromOCR(text: String) -> ProductMatch? {
+    private func createProductFromOCRInternal(text: String) -> ProductMatch? {
         let entities = extractEntities(from: text)
 
         // Get brand (first capitalized word or first entity)
@@ -449,12 +517,51 @@ final class ProductMatchingEngine {
         return nil
     }
 
+    // MARK: - Public OCR Fallback for AIService
+    func createProductFromOCR(text: String) async -> DetectedProduct {
+        guard let match = self.createProductFromOCRInternal(text: text) else {
+            return DetectedProduct(
+                brand: "Unknown",
+                name: "Unrecognized Product",
+                variant: nil,
+                size: nil,
+                category: nil,
+                confidence: 0
+            )
+        }
+
+        return DetectedProduct(
+            brand: match.product.brand,
+            name: match.product.name,
+            variant: match.product.variants.first?.name,
+            size: match.product.variants.first?.size,
+            category: match.product.category,
+            confidence: match.confidence
+        )
+    }
+
     // MARK: - Load Product Database
     private func loadProductDatabase() {
-        // Load from local JSON or database
-        // Sample Blinkit grocery products
+        guard let jsonPath = Bundle.main.path(forResource: "ProductDatabase", ofType: "json"),
+              let jsonData = try? Data(contentsOf: URL(fileURLWithPath: jsonPath)) else {
+            print("[ProductMatchingEngine] Failed to load ProductDatabase.json, using fallback")
+            loadFallbackDatabase()
+            return
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            let response = try decoder.decode(ProductDatabaseResponse.self, from: jsonData)
+            self.productDatabase = response.products
+            print("[ProductMatchingEngine] Loaded \(self.productDatabase.count) products from database")
+        } catch {
+            print("[ProductMatchingEngine] Error decoding ProductDatabase.json: \(error)")
+            loadFallbackDatabase()
+        }
+    }
+
+    private func loadFallbackDatabase() {
         productDatabase = [
-            // Beverages
             CatalogProduct(
                 id: "1",
                 barcode: "8901000100102",
@@ -466,25 +573,9 @@ final class ProductMatchingEngine {
                 variants: [
                     ProductVariant(id: "1.1", name: "Regular", size: "500ml", unit: "ml"),
                     ProductVariant(id: "1.2", name: "Diet", size: "500ml", unit: "ml"),
-                    ProductVariant(id: "1.3", name: "Zero Sugar", size: "500ml", unit: "ml"),
                 ],
                 pricing: 50.0
             ),
-            CatalogProduct(
-                id: "1a",
-                barcode: "8901000100119",
-                brand: "Coca-Cola",
-                name: "Sprite Lemon-Lime",
-                description: "Crisp lemon-lime flavored soft drink",
-                category: "beverages",
-                tags: ["sprite", "lemon", "lime", "soft-drink"],
-                variants: [
-                    ProductVariant(id: "1a.1", name: "Regular", size: "500ml", unit: "ml"),
-                ],
-                pricing: 45.0
-            ),
-
-            // Snacks
             CatalogProduct(
                 id: "2",
                 barcode: "8901063500001",
@@ -495,12 +586,9 @@ final class ProductMatchingEngine {
                 tags: ["chips", "snack", "crispy", "potato"],
                 variants: [
                     ProductVariant(id: "2.1", name: "Salted", size: "50g", unit: "g"),
-                    ProductVariant(id: "2.2", name: "Masala", size: "50g", unit: "g"),
                 ],
                 pricing: 20.0
             ),
-
-            // Dairy
             CatalogProduct(
                 id: "3",
                 barcode: "8901000200001",
@@ -511,55 +599,8 @@ final class ProductMatchingEngine {
                 tags: ["milk", "dairy", "fresh"],
                 variants: [
                     ProductVariant(id: "3.1", name: "Regular", size: "500ml", unit: "ml"),
-                    ProductVariant(id: "3.2", name: "Toned", size: "1L", unit: "ml"),
                 ],
                 pricing: 60.0
-            ),
-
-            // Snacks
-            CatalogProduct(
-                id: "4",
-                barcode: "8901234567890",
-                brand: "Britannia",
-                name: "Britannia Good Day Cookies",
-                description: "Crunchy biscuits with chocolate chips",
-                category: "snacks",
-                tags: ["biscuits", "cookies", "snack"],
-                variants: [
-                    ProductVariant(id: "4.1", name: "Chocolate", size: "150g", unit: "g"),
-                ],
-                pricing: 35.0
-            ),
-
-            // Spices
-            CatalogProduct(
-                id: "5",
-                barcode: "8901111111111",
-                brand: "MDH",
-                name: "MDH Garam Masala",
-                description: "Aromatic spice blend",
-                category: "spices",
-                tags: ["spice", "garam-masala", "seasoning"],
-                variants: [
-                    ProductVariant(id: "5.1", name: "Standard", size: "100g", unit: "g"),
-                ],
-                pricing: 40.0
-            ),
-
-            // Electronics - MacBook
-            CatalogProduct(
-                id: "6",
-                barcode: "0194252208480",
-                brand: "Apple",
-                name: "MacBook Pro",
-                description: "Powerful laptop with M-series chip",
-                category: "Electronics",
-                tags: ["macbook", "laptop", "apple", "computer", "m3"],
-                variants: [
-                    ProductVariant(id: "6.1", name: "16-inch M3 Max", size: "36GB", unit: "Memory"),
-                    ProductVariant(id: "6.2", name: "14-inch M3 Pro", size: "18GB", unit: "Memory"),
-                ],
-                pricing: 199999.0
             ),
         ]
     }
@@ -577,4 +618,8 @@ struct ProductImageFeatures {
     let dominantColors: [UIColor]
     let estimatedSize: CGSize?
     let textRegions: [String]
+}
+
+struct ProductDatabaseResponse: Decodable {
+    let products: [CatalogProduct]
 }
