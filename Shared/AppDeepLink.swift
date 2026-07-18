@@ -10,8 +10,9 @@ enum AppDeepLink {
     case meal(query: String?)
 
     init?(url: URL) {
-        guard url.scheme == "eternalscan" else { return nil }
-        switch url.host {
+        // Scheme and host are case-insensitive per RFC 3986.
+        guard url.scheme?.lowercased() == "eternalscan" else { return nil }
+        switch url.host?.lowercased() {
         case "scan":
             self = .scan
         case "meal":

@@ -73,10 +73,12 @@ final class ShoppingViewModel: ObservableObject {
     
     // Actions
     func openCamera() {
+        Haptics.tap()
         sheet = .camera
     }
 
     func openText() {
+        Haptics.tap()
         sheet = .text
     }
 
@@ -88,8 +90,11 @@ final class ShoppingViewModel: ObservableObject {
         case .scan:
             openCamera()
         case .meal(let prefill):
-            if let prefill, !prefill.isEmpty {
-                query = prefill
+            if let prefill {
+                let trimmed = prefill.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    query = String(trimmed.prefix(140))
+                }
             }
             openText()
         }
@@ -106,6 +111,7 @@ final class ShoppingViewModel: ObservableObject {
     }
     
     func placeOrder() {
+        Haptics.success()
         screen = .order
     }
 
@@ -117,10 +123,12 @@ final class ShoppingViewModel: ObservableObject {
         rawScannedText = key
         detectedIngredients = repository.getIngredients(for: key)
         matchProducts()
+        matchedProducts.isEmpty ? Haptics.error() : Haptics.success()
         isShowingResultsSheet = true
     }
-    
+
     func searchByRecipeDirect(_ recipe: String) {
+        Haptics.selection()
         query = recipe
         isUsingCamera = false
         rawScannedText = recipe
@@ -156,15 +164,17 @@ final class ShoppingViewModel: ObservableObject {
                 self.matchProducts()
                 
                 self.isUsingCamera = true
+                Haptics.success()
                 self.isShowingResultsSheet = true
             } catch {
                 print("Camera scanning failed: \(error.localizedDescription)")
-                
+
                 // Set to unknown product
                 self.rawScannedText = "Unknown Product"
                 self.detectedIngredients = []
                 self.matchProducts()
                 self.isUsingCamera = true
+                Haptics.error()
                 self.isShowingResultsSheet = true
             }
             
@@ -263,6 +273,7 @@ final class ShoppingViewModel: ObservableObject {
     
     func addToCart(_ product: Product) {
         guard product.inStock else { return }
+        Haptics.impact(.light)
         
         // Prefetch image on cart addition if missing
         if productImages[product.id] == nil {
@@ -283,6 +294,7 @@ final class ShoppingViewModel: ObservableObject {
     }
     
     func removeFromCart(_ product: Product) {
+        Haptics.impact(.light)
         if let index = cart.firstIndex(where: { $0.product.id == product.id }) {
             if cart[index].quantity > 1 {
                 cart[index].quantity -= 1
@@ -293,6 +305,7 @@ final class ShoppingViewModel: ObservableObject {
     }
     
     func addAllToCart() {
+        Haptics.success()
         // Add only the items that are in stock
         let inStockItems = matchedProducts.filter { $0.inStock }
         for product in inStockItems {
@@ -308,6 +321,7 @@ final class ShoppingViewModel: ObservableObject {
     
     func checkout() {
         guard !cart.isEmpty else { return }
+        Haptics.success()
         cart.removeAll()
         showCheckoutSuccess = true
     }

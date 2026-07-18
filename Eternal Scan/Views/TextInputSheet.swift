@@ -50,6 +50,11 @@ struct TextInputSheet: View {
                         .scrollContentBackground(.hidden)
                         .frame(height: 96)
                         .focused($focused)
+                        .onChange(of: vm.query) { _, newValue in
+                            if newValue.count > 140 {
+                                vm.query = String(newValue.prefix(140))
+                            }
+                        }
                 }
                 HStack {
                     Text("Free text · meal, servings, occasion").monoLabel(size: 10)
@@ -75,7 +80,10 @@ struct TextInputSheet: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(vm.recipeSuggestions, id: \.self) { s in
-                            Button { vm.query = s } label: {
+                            Button {
+                                Haptics.selection()
+                                vm.query = s
+                            } label: {
                                 Text(s)
                                     .font(ESFont.sans(12, weight: .medium))
                                     .foregroundStyle(ESColor.foreground)

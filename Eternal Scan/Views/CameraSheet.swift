@@ -148,7 +148,10 @@ struct CameraSheet: View {
                         HStack(spacing: 8) {
                             ForEach(0..<simulatorTargets.count, id: \.self) { idx in
                                 Button {
-                                    selectedSimulatorTargetIndex = idx
+                                    Haptics.selection()
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                        selectedSimulatorTargetIndex = idx
+                                    }
                                 } label: {
                                     HStack(spacing: 4) {
                                         Image(systemName: simulatorTargets[idx].icon)
@@ -279,6 +282,7 @@ struct CameraSheet: View {
     }
 
     private func capturePhoto() {
+        Haptics.impact(.heavy)
         withAnimation(.easeIn(duration: 0.1)) {
             isFlashing = true
         }

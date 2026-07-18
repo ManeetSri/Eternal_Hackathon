@@ -98,40 +98,36 @@ struct DashboardView: View {
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
                     .fill(ESColor.foreground)
 
-                // Camera lens badge
+                // Viewfinder camera badge
                 VStack {
                     HStack {
                         Spacer()
                         ZStack {
-                            Circle()
-                                .stroke(Color.white.opacity(0.2), lineWidth: 2)
-                                .frame(width: 48, height: 48)
+                            Image(systemName: "viewfinder")
+                                .font(.system(size: 46, weight: .thin))
+                                .foregroundStyle(ESColor.primary)
                             Image(systemName: "camera.fill")
-                                .foregroundStyle(.white)
                                 .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
                         }
                     }
                     Spacer()
                 }
                 .padding(24)
 
-                // Indicator dots
-                VStack(alignment: .trailing, spacing: 4) {
-                    Circle().fill(ESColor.primary).frame(width: 4, height: 4)
-                    Circle().fill(Color.white.opacity(0.3)).frame(width: 4, height: 4)
-                }
-                .padding(.top, 80)
-                .padding(.trailing, 30)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-
                 // Copy
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Snap to\nreorder.")
+                    Text("Snap to\n\(Text("reorder.").foregroundStyle(ESColor.primary))")
+                        .foregroundStyle(.white)
                         .font(ESFont.sans(26, weight: .heavy))
                         .tracking(-1.2)
-                        .foregroundStyle(.white)
                         .lineSpacing(-4)
-                    Text("Scan empty packaging").monoLabel(size: 10, color: .white.opacity(0.5))
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(ESColor.primary)
+                            .frame(width: 4, height: 4)
+                        Text("ReSnap packaging").monoLabel(size: 10, color: .white.opacity(0.6))
+                    }
                 }
                 .padding(24)
             }
@@ -143,31 +139,41 @@ struct DashboardView: View {
     private var aiWidget: some View {
         Button(action: vm.openText) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Image(systemName: "sparkles")
-                        .foregroundStyle(ESColor.ai)
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("Describe a meal...")
-                        .font(ESFont.sans(14, weight: .bold))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 28, height: 28)
+                        .background(
+                            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                .fill(ESColor.ai)
+                        )
+                    Text("Describe \(Text("a meal.").foregroundStyle(ESColor.ai))")
                         .foregroundStyle(ESColor.foreground)
+                        .font(ESFont.sans(15, weight: .heavy))
+                        .tracking(-0.3)
                 }
-                HStack {
+                HStack(spacing: 6) {
                     Text("PASTA ARRABBIATA FOR 4")
-                        .font(ESFont.mono(11, weight: .medium))
-                        .kerning(1.4)
-                        .foregroundStyle(Color.black.opacity(0.3))
+                        .font(ESFont.mono(11, weight: .bold))
+                        .kerning(1.2)
+                        .foregroundStyle(ESColor.muted)
+                        .lineLimit(1)
                     Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(Color.black.opacity(0.3))
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 24, height: 24)
+                        .background(Circle().fill(ESColor.foreground))
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
+                .padding(.leading, 14)
+                .padding(.trailing, 6)
+                .padding(.vertical, 7)
                 .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(white: 0.97))
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(ESColor.chip)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .stroke(ESColor.border, lineWidth: 1)
                         )
                 )
@@ -317,8 +323,9 @@ struct DashboardView: View {
 struct PressableStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .animation(.spring(response: 0.28, dampingFraction: 0.65), value: configuration.isPressed)
     }
 }
 

@@ -24,7 +24,7 @@ struct ContentView: View {
             }
             .environmentObject(vm)
             .transition(.opacity.combined(with: .move(edge: .trailing)))
-            .animation(.easeInOut(duration: 0.25), value: vm.screen)
+            .animation(.spring(response: 0.42, dampingFraction: 0.85), value: vm.screen)
         }
         .onOpenURL { url in
             vm.handleDeepLink(url)

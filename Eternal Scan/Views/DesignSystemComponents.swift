@@ -4,6 +4,27 @@
 //
 
 import SwiftUI
+import UIKit
+
+// MARK: - Haptics
+
+enum Haptics {
+    static func tap() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+    static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+    static func selection() {
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+    static func success() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+    static func error() {
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
+    }
+}
 
 struct StatusBar: View {
     var dark: Bool = false

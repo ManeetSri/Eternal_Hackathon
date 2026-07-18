@@ -41,8 +41,8 @@ struct EternalScanWidgetEntryView: View {
 
             Spacer(minLength: 0)
 
-            (Text("Snap to\n").foregroundStyle(.white)
-             + Text("reorder.").foregroundStyle(ESColor.primary))
+            Text("Snap to\n\(Text("reorder.").foregroundStyle(ESColor.primary))")
+                .foregroundStyle(.white)
                 .font(ESFont.sans(23, weight: .heavy))
                 .tracking(-1.0)
                 .lineSpacing(-3)
@@ -51,7 +51,7 @@ struct EternalScanWidgetEntryView: View {
                 Circle()
                     .fill(ESColor.primary)
                     .frame(width: 4, height: 4)
-                Text("Scan empty packaging")
+                Text("ReSnap packaging")
                     .monoLabel(size: 9, color: .white.opacity(0.65))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -88,8 +88,8 @@ struct EternalScanWidget: Widget {
         ) { entry in
             EternalScanWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Snap to Reorder")
-        .description("Scan empty packaging to reorder items")
+        .configurationDisplayName("ReSnap")
+        .description("Point at empty packaging — your reorder builds itself.")
         .supportedFamilies([.systemSmall])
     }
 }
