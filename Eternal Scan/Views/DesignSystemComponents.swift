@@ -44,6 +44,7 @@ struct ProductTile: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: size, height: size)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .transition(.opacity)
                     case .failure, .empty:
                         fallbackTile
                     @unknown default:
@@ -55,6 +56,8 @@ struct ProductTile: View {
             }
         }
         .frame(width: size, height: size)
+        // Crossfade placeholder → photo instead of popping in.
+        .animation(.easeInOut(duration: 0.25), value: remoteUrl)
     }
 
     private var fallbackTile: some View {

@@ -480,14 +480,39 @@ final class ShoppingViewModel: ObservableObject {
     }
 
     func fetchProductImages() {
-        let productsToFetch = self.matchedProducts
-        for product in productsToFetch {
-            guard productImages[product.id] == nil else { continue }
-            Task {
-                if let url = await fetchImageWithSerpApi(productName: "\(product.brand) \(product.name)") {
-                    await MainActor.run {
-                        self.productImages[product.id] = url
+        // Cap the fetch to what's actually near the top of the sheet, and
+        // batch dictionary updates — one @Published mutation per image used
+        // to re-layout the whole sheet 20+ times while results settled.
+        let productsToFetch = matchedProducts.prefix(12).filter { productImages[$0.id] == nil }
+        guard !productsToFetch.isEmpty else { return }
+
+        Task {
+            var buffer: [UUID: URL] = [:]
+            await withTaskGroup(of: (UUID, URL?).self) { group in
+                for product in productsToFetch {
+                    group.addTask {
+                        (product.id, await self.fetchImageWithSerpApi(productName: "\(product.brand) \(product.name)"))
                     }
+                }
+                for await (id, url) in group {
+                    if let url {
+                        buffer[id] = url
+                    }
+                    // Flush in chunks so images appear promptly without
+                    // one re-render per thumbnail.
+                    if buffer.count >= 4 {
+                        let chunk = buffer
+                        buffer.removeAll()
+                        await MainActor.run {
+                            self.productImages.merge(chunk) { _, new in new }
+                        }
+                    }
+                }
+            }
+            let remaining = buffer
+            if !remaining.isEmpty {
+                await MainActor.run {
+                    self.productImages.merge(remaining) { _, new in new }
                 }
             }
         }

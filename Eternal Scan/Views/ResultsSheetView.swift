@@ -139,6 +139,7 @@ struct ResultsSheetView: View {
                     }
                     .padding(.vertical)
                 }
+                .transition(.opacity)
                 }
 
                 // Sticky Add Top Match(es) button
@@ -146,6 +147,7 @@ struct ResultsSheetView: View {
                     topMatchButtonOverlay(vm.directMatches.filter { $0.inStock })
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: vm.isLoading)
             .navigationTitle(vm.isLoading ? (vm.isUsingCamera ? "Scanning..." : "Searching...") : (vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
