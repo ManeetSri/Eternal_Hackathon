@@ -17,7 +17,16 @@ class LocalBlinkitRepository: BlinkitRepository {
         "rajma": ["Rajma Chitra Kidney Beans Red", "Organic Tomato", "Red Onion", "Garlic Bulbs"],
         "chawal": ["Basmati Rice Premium Long Grain", "Pure Ghee", "Salt Iodized"],
         "rice": ["Basmati Rice Premium Long Grain"],
-        "beans": ["Rajma Chitra Kidney Beans Red"]
+        "beans": ["Rajma Chitra Kidney Beans Red"],
+
+        // Aliases for scanned non-grocery objects whose tokens can't
+        // substring-match a catalog name (e.g. "chord" vs "cord").
+        "chord": ["Charging Cable"],
+        "cord": ["Charging Cable"],
+        "charger": ["Charger Adapter", "Charging Cable"],
+        "footwear": ["Sneakers", "Canvas Shoes"],
+        "pen": ["Ball Pens"],
+        "pens": ["Ball Pens"]
     ]
 
     private var catalog: [Product] = []
@@ -28,22 +37,28 @@ class LocalBlinkitRepository: BlinkitRepository {
     
     private func loadCatalogFromJSON() {
         // Attempt to load products.json from App Bundle
+        var loaded: [Product] = []
         if let url = Bundle.main.url(forResource: "products", withExtension: "json") {
             do {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
-                self.catalog = try decoder.decode([Product].self, from: data)
-                print("BlinkitRepository: Successfully loaded \(self.catalog.count) products from products.json")
-                return
+                loaded = try decoder.decode([Product].self, from: data)
+                print("BlinkitRepository: Successfully loaded \(loaded.count) products from products.json")
             } catch {
                 print("BlinkitRepository Error: Failed to decode products.json: \(error.localizedDescription)")
             }
         } else {
             print("BlinkitRepository Warning: products.json not found in App Bundle. Falling back to default list.")
         }
-        
-        // Hardcoded fallback catalog in case JSON loading fails
-        self.catalog = [
+
+        // The JSON catalog lacks recipe staples (pasta, garlic, tea, rice…), so
+        // merge them in rather than letting the JSON replace them entirely.
+        self.catalog = loaded + Self.staples
+    }
+
+    // Recipe-staple products: every ingredient the recipe map can emit
+    // resolves to at least one of these.
+    private static let staples: [Product] = [
             Product(name: "Durum Wheat Pasta", brand: "Barilla", price: 129, unit: "500g", inStock: true, category: "Pantry", systemImage: "fork.knife"),
             Product(name: "Penne Pasta", brand: "Del Monte", price: 119, unit: "500g", inStock: true, category: "Pantry", systemImage: "fork.knife"),
             Product(name: "Spaghetti Pasta", brand: "Disano", price: 99, unit: "500g", inStock: false, category: "Pantry", systemImage: "fork.knife"),
@@ -59,9 +74,33 @@ class LocalBlinkitRepository: BlinkitRepository {
             Product(name: "Red Onion", brand: "Fresh Farm", price: 30, unit: "500g", inStock: true, category: "Vegetables", systemImage: "carrot.fill"),
             Product(name: "Kurkure Masala Munch", brand: "PepsiCo", price: 20, unit: "90g", inStock: true, category: "Snacks", systemImage: "sparkles"),
             Product(name: "Lays Potato Chips", brand: "PepsiCo", price: 30, unit: "50g", inStock: true, category: "Snacks", systemImage: "sparkles"),
-            Product(name: "Coca Cola Soda", brand: "Coke", price: 40, unit: "300ml", inStock: true, category: "Beverages", systemImage: "drop.fill")
+            Product(name: "Coca Cola Soda", brand: "Coke", price: 40, unit: "300ml", inStock: true, category: "Beverages", systemImage: "drop.fill"),
+            Product(name: "Tea Leaves Gold", brand: "Tata Tea", price: 140, unit: "250g", inStock: true, category: "Beverages", systemImage: "leaf.fill"),
+            Product(name: "Sugar Refined", brand: "Madhur", price: 45, unit: "1kg", inStock: true, category: "Pantry", systemImage: "cube.fill"),
+            Product(name: "Fresh Ginger", brand: "Fresh Farm", price: 20, unit: "100g", inStock: true, category: "Vegetables", systemImage: "leaf.fill"),
+            Product(name: "Green Chili", brand: "Fresh Farm", price: 15, unit: "100g", inStock: true, category: "Vegetables", systemImage: "carrot.fill"),
+            Product(name: "Cucumber English", brand: "Fresh Farm", price: 25, unit: "500g", inStock: true, category: "Vegetables", systemImage: "carrot.fill"),
+            Product(name: "Lettuce Iceberg", brand: "Fresh Farm", price: 49, unit: "1 pc", inStock: true, category: "Vegetables", systemImage: "leaf.fill"),
+            Product(name: "Lemon", brand: "Fresh Farm", price: 10, unit: "2 pc", inStock: true, category: "Vegetables", systemImage: "circle.fill"),
+            Product(name: "Rajma Chitra Kidney Beans Red", brand: "Tata Sampann", price: 180, unit: "500g", inStock: true, category: "Pantry", systemImage: "circle.grid.cross"),
+            Product(name: "Basmati Rice Premium Long Grain", brand: "India Gate", price: 250, unit: "1kg", inStock: true, category: "Pantry", systemImage: "circle.grid.3x3.fill"),
+            Product(name: "Pure Ghee", brand: "Amul", price: 325, unit: "500ml", inStock: true, category: "Dairy", systemImage: "drop.fill"),
+            Product(name: "Salt Iodized", brand: "Tata", price: 25, unit: "1kg", inStock: true, category: "Pantry", systemImage: "cube.fill"),
+            Product(name: "Black Pepper Ground", brand: "Catch", price: 85, unit: "50g", inStock: true, category: "Pantry", systemImage: "circle.fill"),
+
+            // General merchandise — lets scanned non-grocery objects
+            // (shoes, laptops, watches, books…) resolve to products too.
+            Product(name: "Running Sneakers", brand: "Nike", price: 4995, unit: "1 pair", inStock: true, category: "Footwear", systemImage: "shoeprints.fill"),
+            Product(name: "Canvas Shoes Casual", brand: "Sparx", price: 1299, unit: "1 pair", inStock: true, category: "Footwear", systemImage: "shoeprints.fill"),
+            Product(name: "Comfort Slippers", brand: "Bata", price: 399, unit: "1 pair", inStock: true, category: "Footwear", systemImage: "shoeprints.fill"),
+            Product(name: "Digital Wristwatch", brand: "Casio", price: 2495, unit: "1 pc", inStock: true, category: "Electronics", systemImage: "watch.analog"),
+            Product(name: "USB-C Charging Cable Cord", brand: "boAt", price: 299, unit: "1.5m", inStock: true, category: "Electronics", systemImage: "cable.connector"),
+            Product(name: "Charger Adapter 20W USB-C", brand: "Apple", price: 1699, unit: "1 pc", inStock: true, category: "Electronics", systemImage: "powerplug.fill"),
+            Product(name: "Laptop Sleeve 15.6 inch", brand: "AmazonBasics", price: 899, unit: "1 pc", inStock: true, category: "Electronics", systemImage: "laptopcomputer"),
+            Product(name: "Wireless Earbuds Airdopes", brand: "boAt", price: 1499, unit: "1 pc", inStock: true, category: "Electronics", systemImage: "earbuds"),
+            Product(name: "Notebook Ruled A5", brand: "Classmate", price: 90, unit: "180 pages", inStock: true, category: "Stationery", systemImage: "book.fill"),
+            Product(name: "Ball Pens Blue Pack", brand: "Cello", price: 60, unit: "10 pc", inStock: true, category: "Stationery", systemImage: "pencil")
         ]
-    }
 
     func getIngredients(for recipe: String) -> [String] {
         let cleanRecipe = recipe.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -99,12 +99,14 @@ struct AppStrings {
     var close: String { t("Close", "बंद करें") }
     var photoDetectedOf: String { t("Photo detected is of:", "फोटो में मिला:") }
     var identifiedIngredients: String { t("Identified Ingredients", "पहचानी गई सामग्री") }
-    var directMatch: String { t("Direct Product Match", "सटीक मिलान") }
-    var relatableOptions: String { t("Relatable Options", "मिलते-जुलते विकल्प") }
+    var directMatch: String { t("Top Match", "सबसे सटीक मिलान") }
+    var directMatchesPlural: String { t("Top Match per Ingredient", "हर सामग्री का सटीक मिलान") }
+    var relatableOptions: String { t("Recommended for you", "आपके लिए सुझाव") }
     var matchingProducts: String { t("Matching Products", "मिलान") }
     var add: String { t("Add", "जोड़ें") }
-    func addAllAvailable(_ count: Int) -> String {
-        t("Add All Available (\(count) items)", "सभी जोड़ें (\(count) चीज़ें)")
+    var addTopMatch: String { t("Add Top Match", "टॉप मिलान जोड़ें") }
+    func addTopMatches(_ n: Int) -> String {
+        t("Add \(n) Top Matches", "\(n) टॉप मिलान जोड़ें")
     }
     var inStock: String { t("In Stock", "स्टॉक में") }
     var outOfStock: String { t("Out of Stock", "स्टॉक में नहीं") }
@@ -131,11 +133,28 @@ struct AppStrings {
     var riderStatus: String { t("Rider assigned · Packing", "राइडर तय · पैकिंग जारी") }
     var backToHome: String { t("Back to Home", "होम पर जाएँ") }
 
+    // MARK: Snackbar
+    var scanFailed: String {
+        t("Couldn't identify the product. Please try again.",
+          "प्रोडक्ट पहचान नहीं पाए। फिर से कोशिश करें।")
+    }
+    var cameraUnavailable: String {
+        t("Camera isn't available on this device.",
+          "इस डिवाइस पर कैमरा उपलब्ध नहीं है।")
+    }
+    func addedToCart(_ n: Int) -> String {
+        t("\(n) items added to cart", "\(n) चीज़ें कार्ट में जुड़ीं")
+    }
+
     // MARK: Spoken summaries
     var spokenVoiceCode: String { lang == .hindi ? "hi-IN" : "en-IN" }
-    func spokenSummary(count: Int, rupees: Int) -> String {
-        t("Found \(count) items, around \(rupees) rupees. Tap the big button to add them all.",
-          "\(count) चीज़ें मिलीं, लगभग \(rupees) रुपये। सब जोड़ने के लिए बड़ा बटन दबाएँ।")
+    func spokenTopMatch(name: String, rupees: Int) -> String {
+        t("Top match: \(name), \(rupees) rupees. Tap the big button to add it.",
+          "सबसे सटीक: \(name), \(rupees) रुपये। जोड़ने के लिए बड़ा बटन दबाएँ।")
+    }
+    func spokenTopMatches(count: Int, rupees: Int) -> String {
+        t("Found top picks for \(count) ingredients, around \(rupees) rupees. Tap the big button to add them all.",
+          "\(count) सामग्रियों के टॉप मिलान मिले, लगभग \(rupees) रुपये। सब जोड़ने के लिए बड़ा बटन दबाएँ।")
     }
     var spokenNoResults: String {
         t("Sorry, I couldn't find matching items. Please try again.",

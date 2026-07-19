@@ -221,6 +221,13 @@ struct CameraSheet: View {
             // Start camera session if live
             if !vm.cameraService.isMock {
                 await vm.cameraService.startSession()
+                // A session that failed to configure (no device / no permission)
+                // would otherwise leave the "Initializing Camera…" spinner forever.
+                guard vm.cameraService.session != nil else {
+                    vm.sheet = nil
+                    vm.showSnackbar(vm.strings.cameraUnavailable)
+                    return
+                }
                 vm.isCameraReady = true
             }
         }

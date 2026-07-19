@@ -385,34 +385,42 @@ class GroqAIService: OnDeviceAIService {
             throw AIServiceError.detectionFailed
         }
         
-        print("🔍 [GroqAIService] Extracting text locally using Apple Vision...")
-        let extractedText = try await extractTextLocally(from: cgImage)
-        
-        guard let text = extractedText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            print("⚠️ [GroqAIService] No text detected in the image.")
+        print("🔍 [GroqAIService] Extracting text and classifying image locally using Apple Vision...")
+
+        async let textTask = try? extractTextLocally(from: cgImage)
+        async let classificationTask = try? classifyImageLocally(from: cgImage)
+
+        let extractedText = (await textTask) ?? ""
+        let classificationLabels = (await classificationTask) ?? ""
+
+        if extractedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            classificationLabels.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            print("⚠️ [GroqAIService] No text or identifiable objects detected.")
             throw AIServiceError.unknownProduct
         }
-        
+
         print("====================================")
         print("✅ EXTRACTED RAW TEXT (APPLE VISION):")
-        print(text)
+        print(extractedText)
+        print("✅ CLASSIFICATION LABELS:")
+        print(classificationLabels)
         print("====================================")
-        
+
         print("🚀 [GroqAIService] Calling Groq API (Llama 3.3)...")
         do {
-            if let aiResult = try await analyzeWithGroq(extractedText: text) {
+            if let aiResult = try await analyzeWithGroq(extractedText: extractedText, classificationLabels: classificationLabels) {
                 return aiResult
             }
         } catch {
             print("🚨 [GroqAIService] Groq API call failed: \(error.localizedDescription)")
         }
-        
+
         print("⚠️ [GroqAIService] Groq failed. Falling back to offline matcher...")
-        if let matchedProduct = matchProductByText(text) {
+        if let matchedProduct = matchProductByText(extractedText, classificationLabels: classificationLabels) {
             print("✅ [GroqAIService] Offline Matcher Success: \(matchedProduct)")
             return matchedProduct
         }
-        
+
         throw AIServiceError.unknownProduct
     }
     
@@ -448,7 +456,38 @@ class GroqAIService: OnDeviceAIService {
         }
     }
     
-    private func analyzeWithGroq(extractedText: String) async throws -> String? {
+    private func classifyImageLocally(from cgImage: CGImage) async throws -> String? {
+        return try await withCheckedThrowingContinuation { continuation in
+            let request = VNClassifyImageRequest { request, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                guard let observations = request.results as? [VNClassificationObservation] else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let topLabels = observations
+                    .filter { $0.confidence > 0.1 }
+                    .prefix(10)
+                    .map { "\($0.identifier)" }
+                    .joined(separator: ", ")
+
+                continuation.resume(returning: topLabels)
+            }
+
+            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+            do {
+                try handler.perform([request])
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    private func analyzeWithGroq(extractedText: String, classificationLabels: String) async throws -> String? {
         let groqApiKey = "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"
         guard let url = URL(string: "https://api.groq.com/openai/v1/chat/completions") else {
             return nil
@@ -459,7 +498,19 @@ class GroqAIService: OnDeviceAIService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(groqApiKey)", forHTTPHeaderField: "Authorization")
         
-        let prompt = "You are a product identification assistant. Read the following noisy text extracted from a product packaging and determine the exact, common names of ALL products you can identify. Return ONLY a comma-separated list of product names (e.g. 'Lays Classic Salted, Kurkure Masala Munch, Red Bull Energy Drink'). If no products are recognizable, return exactly the phrase 'Product Not Found'. Here is the text:\n\n\(extractedText)"
+        let prompt = """
+        You are an advanced product identification assistant.
+        Identify the distinct products in the image using the following OCR text and Apple Vision classification labels.
+        OCR Text: \(extractedText)
+        Classification Labels: \(classificationLabels)
+
+        Rules:
+        1. Return ONLY a comma-separated list of the specific product or object names.
+        2. Example for snacks: Lays Classic Salted, Kurkure Masala Munch, Red Bull Energy Drink
+        3. Example for objects: Casio Wristwatch, Nike Sneakers
+        4. If the exact brand or product is unknown, just return the most specific generic object name from the labels (e.g., Laptop, Watch, Book, Charger).
+        5. If you cannot identify any product or distinct object at all, return exactly 'Product Not Found'.
+        """
         
         let requestBody: [String: Any] = [
             "model": "llama-3.3-70b-versatile",
@@ -500,27 +551,45 @@ class GroqAIService: OnDeviceAIService {
         return nil
     }
     
-    private func matchProductByText(_ text: String) -> String? {
+    private func matchProductByText(_ text: String, classificationLabels: String) -> String? {
         let fullText = text.lowercased()
+        let labelsText = classificationLabels.lowercased()
         var matches: [String] = []
-        
-        if fullText.contains("lay's") || fullText.contains("lays") || fullText.contains("potato chips") || fullText.contains("cream & onion") {
-            matches.append("Lays Classic Salted")
+
+        if fullText.contains("lay's") || fullText.contains("lays") || fullText.contains("potato chips") || fullText.contains("cream & onion") || labelsText.contains("chips") || labelsText.contains("potato chips") {
+            if fullText.contains("onion") || fullText.contains("cream") {
+                matches.append("Lays American Style Cream Onion")
+            } else if fullText.contains("tomato") {
+                matches.append("Lays Spanish Tomato Tang")
+            } else if fullText.contains("chili") || fullText.contains("hot") {
+                matches.append("Lays Hot n Sweet Chili")
+            } else {
+                matches.append("Lays Potato Chips Classic Salted")
+            }
         }
-        if fullText.contains("kurkure") || fullText.contains("kerkure") || fullText.contains("masala munch") || fullText.contains("msala") {
-            matches.append("Kurkure Masala Munch")
+        if fullText.contains("kurkure") || fullText.contains("kerkure") || fullText.contains("masala munch") || fullText.contains("msala") || labelsText.contains("snack") {
+            if fullText.contains("masti") || fullText.contains("solid") {
+                matches.append("Kurkure Solid Masti")
+            } else if fullText.contains("chutney") || fullText.contains("green") {
+                matches.append("Kurkure Green Chutney Style")
+            } else {
+                matches.append("Kurkure Masala Munch")
+            }
         }
-        if fullText.contains("red bull") || fullText.contains("redbull") || fullText.contains("energy drink") || fullText.contains("led bull") || fullText.contains("mergy drink") {
+        if fullText.contains("red bull") || fullText.contains("redbull") || fullText.contains("energy drink") || fullText.contains("led bull") || fullText.contains("mergy drink") || labelsText.contains("soft drink") || labelsText.contains("beverage") {
             matches.append("Red Bull Energy Drink")
         }
         if fullText.contains("doritos") || fullText.contains("nacho") {
             matches.append("Doritos Nacho Cheese")
         }
-        if fullText.contains("maggi") || fullText.contains("nestle") {
+        if fullText.contains("maggi") || fullText.contains("nestle") || labelsText.contains("noodle") || labelsText.contains("noodles") {
             matches.append("Maggi 2-Minute Noodles")
         }
-        if fullText.contains("amul") {
+        if fullText.contains("amul") || fullText.contains("butter") || labelsText.contains("butter") {
             matches.append("Amul Butter 500g")
+        }
+        if fullText.contains("cheese") || labelsText.contains("cheese") {
+            matches.append("Parmesan Cheese")
         }
         if fullText.contains("coca-cola") || fullText.contains("coca cola") || fullText.contains("coke") {
             matches.append("Coca-Cola 750ml")
@@ -528,10 +597,36 @@ class GroqAIService: OnDeviceAIService {
         if fullText.contains("sprite") || fullText.contains("lemon-lime") {
             matches.append("Sprite 750ml")
         }
-        if fullText.contains("tata tea") || fullText.contains("tata") {
+        if fullText.contains("tata tea") || fullText.contains("tata") || fullText.contains("tea") {
             matches.append("Tata Tea Gold 500g")
         }
-        
+
+        if matches.isEmpty {
+            if labelsText.contains("tomato") {
+                matches.append("Tomato")
+            } else if labelsText.contains("banana") {
+                matches.append("Banana")
+            } else if labelsText.contains("apple") {
+                matches.append("Apple")
+            } else if labelsText.contains("orange") {
+                matches.append("Orange")
+            } else if labelsText.contains("grape") {
+                matches.append("Grapes")
+            } else if labelsText.contains("egg") {
+                matches.append("Eggs")
+            } else if labelsText.contains("milk") {
+                matches.append("Milk")
+            } else if labelsText.contains("onion") {
+                matches.append("Onion")
+            } else if labelsText.contains("garlic") {
+                matches.append("Garlic")
+            } else if labelsText.contains("pasta") || labelsText.contains("spaghetti") {
+                matches.append("Pasta")
+            } else if labelsText.contains("iphone") || labelsText.contains("cellular phone") || labelsText.contains("cellphone") {
+                matches.append("iPhone 15 Pro")
+            }
+        }
+
         if matches.isEmpty { return nil }
         return matches.joined(separator: " + ")
     }

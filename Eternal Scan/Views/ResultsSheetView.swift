@@ -97,7 +97,8 @@ struct ResultsSheetView: View {
                                 // 1. Scanned Match (Highly Confident Direct Matches)
                                 if !vm.directMatches.isEmpty {
                                     VStack(alignment: .leading, spacing: 12) {
-                                        Text(vm.strings.directMatch).monoLabel(size: 11, color: ESColor.primary)
+                                        Text(vm.directMatches.count > 1 ? vm.strings.directMatchesPlural : vm.strings.directMatch)
+                                            .monoLabel(size: 11, color: ESColor.primary)
                                             .padding(.horizontal, 20)
                                         
                                         VStack(spacing: 12) {
@@ -132,9 +133,9 @@ struct ResultsSheetView: View {
                     .padding(.vertical)
                 }
 
-                // Sticky Add All Button
-                if !vm.matchedProducts.isEmpty {
-                    addAllButtonOverlay
+                // Sticky Add Top Match(es) button
+                if !vm.directMatches.filter({ $0.inStock }).isEmpty {
+                    topMatchButtonOverlay(vm.directMatches.filter { $0.inStock })
                 }
             }
             .navigationTitle(vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle)
@@ -308,23 +309,22 @@ struct ResultsSheetView: View {
         )
     }
 
-    // Add All button panel
-    private var addAllButtonOverlay: some View {
-        let inStockCount = vm.matchedProducts.filter { $0.inStock }.count
-        
+    // Add Top Match(es) button panel — one product per matched ingredient
+    private func topMatchButtonOverlay(_ tops: [Product]) -> some View {
+        let total = Int(tops.reduce(0) { $0 + $1.price })
+        let label = tops.count > 1 ? vm.strings.addTopMatches(tops.count) : vm.strings.addTopMatch
+
         return VStack {
             Spacer()
             Button {
                 withAnimation(.spring()) {
-                    vm.addAllToCart()
-                    vm.isShowingResultsSheet = false
-                    vm.screen = .checkout
+                    vm.addTopMatchesAndCheckout()
                 }
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "cart.badge.plus.fill")
                         .font(.headline)
-                    Text(vm.strings.addAllAvailable(inStockCount))
+                    Text("\(label) · ₹\(total)")
                         .font(ESFont.mono(11, weight: .heavy))
                         .kerning(1.6)
                         .textCase(.uppercase)
@@ -336,7 +336,7 @@ struct ResultsSheetView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
             }
-            .disabled(inStockCount == 0)
+            .accessibilityLabel("\(label), ₹\(total)")
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
         }

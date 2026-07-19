@@ -26,6 +26,7 @@ struct ContentView: View {
             .transition(.opacity.combined(with: .move(edge: .trailing)))
             .animation(.spring(response: 0.42, dampingFraction: 0.85), value: vm.screen)
         }
+        .snackbar(vm)
         .onOpenURL { url in
             vm.handleDeepLink(url)
         }
@@ -42,6 +43,7 @@ struct ContentView: View {
                 }
             }
             .environmentObject(vm)
+            .snackbar(vm)
             .presentationDetents([.fraction(0.85)])
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(32)
@@ -50,6 +52,7 @@ struct ContentView: View {
         // Sheet for results presentation
         .sheet(isPresented: $vm.isShowingResultsSheet) {
             ResultsSheetView(vm: vm)
+                .snackbar(vm)
                 .presentationDetents([.fraction(0.85)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(32)

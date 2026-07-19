@@ -25,6 +25,9 @@ final class ShoppingViewModel: ObservableObject {
     }
     var strings: AppStrings { AppStrings(language) }
 
+    @Published var snackbar: SnackbarMessage?
+    private var snackbarDismissTask: Task<Void, Never>?
+
     @Published var query: String = ""
     @Published var detectedIngredients: [String] = []
     @Published var matchedProducts: [Product] = []
@@ -83,6 +86,26 @@ final class ShoppingViewModel: ObservableObject {
         cart.reduce(0) { $0 + $1.quantity }
     }
     
+    // MARK: - Snackbar
+
+    func showSnackbar(_ text: String, kind: SnackbarMessage.Kind = .error) {
+        if kind == .error {
+            Haptics.error()
+        }
+        snackbar = SnackbarMessage(text: text, kind: kind)
+        snackbarDismissTask?.cancel()
+        snackbarDismissTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled else { return }
+            self?.snackbar = nil
+        }
+    }
+
+    func dismissSnackbar() {
+        snackbarDismissTask?.cancel()
+        snackbar = nil
+    }
+
     // Actions
     func toggleLanguage() {
         Haptics.selection()
@@ -123,13 +146,15 @@ final class ShoppingViewModel: ObservableObject {
     }
 
     private func speakResultSummary() {
-        let inStock = matchedProducts.filter { $0.inStock }
+        let tops = directMatches.filter { $0.inStock }
         let utteranceText: String
-        if inStock.isEmpty {
-            utteranceText = strings.spokenNoResults
+        if tops.count > 1 {
+            let total = tops.reduce(0) { $0 + $1.price }
+            utteranceText = strings.spokenTopMatches(count: tops.count, rupees: Int(total))
+        } else if let top = tops.first {
+            utteranceText = strings.spokenTopMatch(name: top.name, rupees: Int(top.price))
         } else {
-            let total = inStock.prefix(6).reduce(0) { $0 + $1.price }
-            utteranceText = strings.spokenSummary(count: inStock.count, rupees: Int(total))
+            utteranceText = strings.spokenNoResults
         }
         let utterance = AVSpeechUtterance(string: utteranceText)
         utterance.voice = AVSpeechSynthesisVoice(language: strings.spokenVoiceCode)
@@ -229,14 +254,9 @@ final class ShoppingViewModel: ObservableObject {
                 self.isShowingResultsSheet = true
             } catch {
                 print("Camera scanning failed: \(error.localizedDescription)")
-
-                // Set to unknown product
-                self.rawScannedText = "Unknown Product"
-                self.detectedIngredients = []
-                self.matchProducts()
-                self.isUsingCamera = true
-                Haptics.error()
-                self.isShowingResultsSheet = true
+                // Don't open a results sheet full of "Unknown Product" noise —
+                // tell the user what happened and let them retry.
+                self.showSnackbar(self.strings.scanFailed)
             }
             
             self.cameraService.stopSession()
@@ -254,82 +274,95 @@ final class ShoppingViewModel: ObservableObject {
         }
         
         let catalog = repository.getCatalog()
-        var scoredProducts: [(product: Product, score: Int)] = []
-        
+
+        // Best product for each ingredient, plus each product's best score overall.
+        var bestPerTerm: [String: (product: Product, score: Int)] = [:]
+        var scoredProducts: [UUID: (product: Product, score: Int)] = [:]
+
         for product in catalog {
-            let name = product.name.lowercased()
-            let brand = product.brand.lowercased()
-            let category = product.category.lowercased()
-            
-            var maxTermScore = 0
             for term in terms {
-                let termWords = term.split { !$0.isLetter && !$0.isNumber }.map { String($0) }
-                let productWords = (name + " " + brand).split { !$0.isLetter && !$0.isNumber }.map { String($0) }
-                
-                var matchedWordsCount = 0
-                for tw in termWords {
-                    if productWords.contains(where: { pw in pw == tw || pw.contains(tw) || tw.contains(pw) }) {
-                        matchedWordsCount += 1
-                    }
+                let s = matchScore(product: product, term: term)
+                guard s >= 4 else { continue }
+                if (bestPerTerm[term]?.score ?? 0) < s {
+                    bestPerTerm[term] = (product, s)
                 }
-                
-                if matchedWordsCount > 0 {
-                    let matchRatio = Double(matchedWordsCount) / Double(termWords.count)
-                    var termScore = Int(matchRatio * 10)
-                    
-                    if name == term || brand == term {
-                        termScore += 15
-                    } else if name.contains(term) || term.contains(name) {
-                        termScore += 10
-                    }
-                    
-                    if category.contains(term) || term.contains(category) {
-                        termScore += 2
-                    }
-                    
-                    if termScore > maxTermScore {
-                        maxTermScore = termScore
-                    }
+                if (scoredProducts[product.id]?.score ?? 0) < s {
+                    scoredProducts[product.id] = (product, s)
                 }
-            }
-            
-            if maxTermScore >= 4 {
-                scoredProducts.append((product, maxTermScore))
             }
         }
-        
-        let sorted = scoredProducts.sorted { $0.score > $1.score }
-        
-        // Direct matches are those scoring high (e.g. >= 8)
-        let directs = sorted.filter { $0.score >= 8 }.map { $0.product }
-        self.directMatches = directs
-        
-        // Expand relatable recommendations for the same categories
+
+        // One top match per ingredient, in ingredient order, deduplicated
+        // (two ingredients can resolve to the same product).
+        var tops: [Product] = []
+        var topIds = Set<UUID>()
+        for term in terms {
+            guard let best = bestPerTerm[term], !topIds.contains(best.product.id) else { continue }
+            tops.append(best.product)
+            topIds.insert(best.product.id)
+        }
+        self.directMatches = tops
+
         var recommendations: [Product] = []
-        var addedIds = Set(directs.map { $0.id })
-        
-        // 1. Add other products matching at lower confidence
-        let lowScoringMatches = sorted.filter { $0.score < 8 }.map { $0.product }
-        for p in lowScoringMatches {
-            if !addedIds.contains(p.id) {
+        var addedIds = topIds
+
+        // 1. Remaining scored matches, in score order
+        for entry in scoredProducts.values.sorted(by: { $0.score > $1.score })
+        where !addedIds.contains(entry.product.id) {
+            recommendations.append(entry.product)
+            addedIds.insert(entry.product.id)
+        }
+
+        // 2. Other catalog products in the top matches' categories
+        let topCategories = Set(tops.map { $0.category })
+        for category in topCategories {
+            for p in catalog where p.category == category && !addedIds.contains(p.id) {
                 recommendations.append(p)
                 addedIds.insert(p.id)
             }
         }
-        
-        // 2. Add other catalog products in same categories as direct matches (recommendations)
-        let directCategories = Set(directs.map { $0.category })
-        for category in directCategories {
-            let sameCategoryProducts = catalog.filter { $0.category == category && !addedIds.contains($0.id) }
-            for p in sameCategoryProducts {
-                recommendations.append(p)
-                addedIds.insert(p.id)
-            }
-        }
-        
+
         self.relatableMatches = recommendations
         self.matchedProducts = self.directMatches + self.relatableMatches
         fetchProductImages()
+    }
+
+    /// How well one catalog product matches one ingredient term.
+    private func matchScore(product: Product, term: String) -> Int {
+        let name = product.name.lowercased()
+        let brand = product.brand.lowercased()
+        let category = product.category.lowercased()
+
+        let termWords = term.split { !$0.isLetter && !$0.isNumber }.map { String($0) }
+        let productWords = (name + " " + brand).split { !$0.isLetter && !$0.isNumber }.map { String($0) }
+
+        var matchedWordsCount = 0
+        for tw in termWords {
+            if productWords.contains(where: { pw in
+                // Exact match always counts; fuzzy containment only for words of
+                // 3+ characters. Tiny brand tokens like the "s" in "Lay's" would
+                // otherwise match any term containing that letter.
+                pw == tw || (tw.count >= 3 && pw.count >= 3 && (pw.contains(tw) || tw.contains(pw)))
+            }) {
+                matchedWordsCount += 1
+            }
+        }
+        guard matchedWordsCount > 0 else { return 0 }
+
+        let matchRatio = Double(matchedWordsCount) / Double(termWords.count)
+        var termScore = Int(matchRatio * 10)
+
+        if name == term || brand == term {
+            termScore += 15
+        } else if name.contains(term) || term.contains(name) {
+            termScore += 10
+        }
+
+        if category.contains(term) || term.contains(category) {
+            termScore += 2
+        }
+
+        return termScore
     }
     
     func addToCart(_ product: Product) {
@@ -365,19 +398,16 @@ final class ShoppingViewModel: ObservableObject {
         }
     }
     
-    func addAllToCart() {
-        Haptics.success()
-        // Add only the items that are in stock
-        let inStockItems = matchedProducts.filter { $0.inStock }
-        for product in inStockItems {
-            if let index = cart.firstIndex(where: { $0.product.id == product.id }) {
-                if cart[index].quantity == 0 {
-                    cart[index].quantity = 1
-                }
-            } else {
-                cart.append(CartItem(product: product, quantity: 1))
-            }
+    /// Adds the top match for every ingredient (in-stock only) and jumps to checkout.
+    func addTopMatchesAndCheckout() {
+        let tops = directMatches.filter { $0.inStock }
+        guard !tops.isEmpty else { return }
+        for product in tops {
+            addToCart(product)
         }
+        showSnackbar(strings.addedToCart(tops.count), kind: .success)
+        isShowingResultsSheet = false
+        screen = .checkout
     }
     
     func checkout() {
@@ -390,7 +420,7 @@ final class ShoppingViewModel: ObservableObject {
     // MARK: - SerpAPI Images (from mark_eternal_B2)
     
     nonisolated func fetchImageWithSerpApi(productName: String) async -> URL? {
-        let serpApiKey = "8b494145922bec510f90935919e45cdea315ad121b42ab38350e1fae5d7d6392"
+        let serpApiKey = "887533819e5eb156b8cecc13f7d14c10d48efc14836b9b161738c00540eb037e"
         guard let encodedQuery = productName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: "https://serpapi.com/search.json?engine=google_images&q=\(encodedQuery)&api_key=\(serpApiKey)") else {
             return nil
