@@ -340,10 +340,8 @@ struct CameraScannerView: View {
             
             vm.searchByCameraSnapshot(simulatorTargetName: targetName)
             
-            // Wait for VM to finish mock detection and dismiss scanner to reveal sheet
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                dismiss()
-            }
+            // Dismiss scanner immediately so the ResultsSheetView slides up to show loading state
+            dismiss()
         }
     }
 }

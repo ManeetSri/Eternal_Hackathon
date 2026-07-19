@@ -9,11 +9,18 @@ struct ResultsSheetView: View {
     @ObservedObject var vm: ShoppingViewModel
     @Environment(\.dismiss) var dismiss
 
+    @State private var rotationDegrees: Double = 0.0
+    @State private var scaleEffectValue: CGFloat = 1.0
+    @State private var statusMessage: String = "Initializing AI processing..."
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 ESColor.background.ignoresSafeArea()
 
+                if vm.isLoading {
+                    loaderView
+                } else {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         
@@ -132,13 +139,14 @@ struct ResultsSheetView: View {
                     }
                     .padding(.vertical)
                 }
+                }
 
                 // Sticky Add Top Match(es) button
-                if !vm.directMatches.filter({ $0.inStock }).isEmpty {
+                if !vm.isLoading && !vm.directMatches.filter({ $0.inStock }).isEmpty {
                     topMatchButtonOverlay(vm.directMatches.filter { $0.inStock })
                 }
             }
-            .navigationTitle(vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle)
+            .navigationTitle(vm.isLoading ? (vm.isUsingCamera ? "Scanning..." : "Searching...") : (vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -339,6 +347,101 @@ struct ResultsSheetView: View {
             .accessibilityLabel("\(label), ₹\(total)")
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
+        }
+    }
+
+    // Loading/Searching Overlay State View
+    private var loaderView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            // Pulsing AI reticle/ring
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [ESColor.primary.opacity(0.12), ESColor.ai.opacity(0.12)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 140, height: 140)
+                    .scaleEffect(scaleEffectValue)
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                            scaleEffectValue = 1.15
+                        }
+                    }
+                
+                Circle()
+                    .stroke(
+                        LinearGradient(colors: [ESColor.primary, ESColor.ai], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round, dash: [8, 8])
+                    )
+                    .frame(width: 140, height: 140)
+                    .rotationEffect(.degrees(rotationDegrees))
+                    .onAppear {
+                        withAnimation(.linear(duration: 4.0).repeatForever(autoreverses: false)) {
+                            rotationDegrees = 360
+                        }
+                    }
+                
+                Image(systemName: vm.isUsingCamera ? "viewfinder" : "sparkles")
+                    .font(.system(size: 44, weight: .light))
+                    .foregroundStyle(
+                        LinearGradient(colors: [ESColor.primary, ESColor.ai], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .shadow(color: ESColor.primary.opacity(0.4), radius: 8)
+            }
+            
+            VStack(spacing: 8) {
+                Text(vm.isUsingCamera ? "Analyzing Scan..." : "Analyzing Recipe...")
+                    .font(ESFont.sans(20, weight: .heavy))
+                    .foregroundColor(ESColor.foreground)
+                    .tracking(-0.5)
+                
+                Text(statusMessage)
+                    .font(ESFont.sans(13, weight: .medium))
+                    .foregroundColor(ESColor.muted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                    .onAppear {
+                        startStatusCycling()
+                    }
+            }
+            .padding(.top, 10)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+    }
+    
+    private func startStatusCycling() {
+        let messages = vm.isUsingCamera ? [
+            "Initializing camera frame capture...",
+            "Running OCR text recognition...",
+            "Running local object classification...",
+            "Querying Groq Llama 3.3 for matches...",
+            "Matching catalog items..."
+        ] : [
+            "Parsing query intent...",
+            "Analyzing recipe ingredients...",
+            "Retrieving recipe ingredients...",
+            "Querying catalog items..."
+        ]
+        
+        statusMessage = messages.first ?? ""
+        var index = 0
+        Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { timer in
+            if !vm.isLoading {
+                timer.invalidate()
+                return
+            }
+            index = (index + 1) % messages.count
+            withAnimation(.easeInOut(duration: 0.25)) {
+                statusMessage = messages[index]
+            }
         }
     }
 }
