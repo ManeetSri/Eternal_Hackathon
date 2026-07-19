@@ -63,12 +63,6 @@ struct DashboardView: View {
                 frequently
                     .padding(.horizontal, 20)
 
-                if !vm.cart.isEmpty {
-                    resumeCart
-                        .padding(.horizontal, 20)
-                        .padding(.top, 24)
-                }
-
                 Spacer(minLength: 32)
 
                 HStack {
@@ -79,9 +73,20 @@ struct DashboardView: View {
                         .foregroundStyle(ESColor.muted)
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 32)
+                .padding(.bottom, vm.cart.isEmpty ? 32 : 100)
             }
         }
+        // Floating checkout CTA — always visible when the cart has items,
+        // no scrolling to the bottom required.
+        .overlay(alignment: .bottom) {
+            if !vm.cart.isEmpty {
+                floatingCartBar
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 12)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: vm.cart.isEmpty)
     }
 
     // MARK: Widgets
@@ -366,28 +371,50 @@ struct DashboardView: View {
         }
     }
 
-    private var resumeCart: some View {
+    private var floatingCartBar: some View {
         Button(action: {
+            Haptics.tap()
             withAnimation {
                 vm.screen = .checkout
             }
         }) {
-            HStack {
-                Text("\(vm.strings.resumeCart) · \(vm.cartCount)")
-                    .font(ESFont.mono(11, weight: .heavy))
-                    .kerning(1.6)
-                    .textCase(.uppercase)
-                    .foregroundStyle(.white)
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(ESColor.primary)
+                        .frame(width: 34, height: 34)
+                    Image(systemName: "cart.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(vm.strings.itemsCount(vm.cartCount))
+                        .font(ESFont.sans(14, weight: .bold))
+                        .foregroundStyle(.white)
+                    Text(String(format: "₹%.0f", vm.cartTotal))
+                        .monoLabel(size: 11, color: .white.opacity(0.7))
+                }
                 Spacer()
-                Image(systemName: "arrow.right")
-                    .foregroundStyle(.white)
-                    .font(.system(size: 14, weight: .semibold))
+                HStack(spacing: 6) {
+                    Text(vm.strings.resumeCart)
+                        .font(ESFont.mono(11, weight: .heavy))
+                        .kerning(1.4)
+                        .textCase(.uppercase)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .bold))
+                }
+                .foregroundStyle(.white)
             }
-            .padding(.horizontal, 20).padding(.vertical, 16)
-            .background(RoundedRectangle(cornerRadius: 20).fill(ESColor.foreground))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(ESColor.foreground)
+                    .shadow(color: .black.opacity(0.25), radius: 14, y: 6)
+            )
         }
         .buttonStyle(PressableStyle())
-        .accessibilityLabel("\(vm.strings.resumeCart), \(vm.cartCount) items. Opens checkout.")
+        .accessibilityLabel("\(vm.strings.resumeCart), \(vm.strings.itemsCount(vm.cartCount)), ₹\(Int(vm.cartTotal)). Opens checkout.")
     }
 
     private struct FreqItem {
