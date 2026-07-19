@@ -5,12 +5,14 @@
 
 import SwiftUI
 import AVFoundation
+import PhotosUI
 
 struct CameraSheet: View {
     @EnvironmentObject var vm: ShoppingViewModel
     @State private var scanLineY: CGFloat = 0
     @State private var selectedSimulatorTargetIndex = 0
     @State private var isFlashing = false
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
 
     // Mock simulator targets from original CameraScannerView
     private let simulatorTargets: [(name: String, icon: String, targetName: String)] = [
@@ -175,32 +177,53 @@ struct CameraSheet: View {
                     }
                 }
 
-                // Capture CTA Button
-                Button(action: capturePhoto) {
-                    HStack(spacing: 8) {
-                        if !vm.isLoading {
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 13, weight: .bold))
-                        } else {
-                            ProgressView()
-                                .tint(.white)
+                // Capture CTA & Gallery Buttons
+                HStack(spacing: 12) {
+                    Button(action: capturePhoto) {
+                        HStack(spacing: 8) {
+                            if !vm.isLoading {
+                                Image(systemName: "camera.fill")
+                                    .font(.system(size: 13, weight: .bold))
+                            } else {
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                            Text(vm.isLoading ? vm.strings.matching : vm.strings.capture)
+                                .font(ESFont.mono(11, weight: .heavy))
+                                .kerning(2)
+                                .textCase(.uppercase)
                         }
-                        Text(vm.isLoading ? vm.strings.matching : vm.strings.capture)
-                            .font(ESFont.mono(11, weight: .heavy))
-                            .kerning(2)
-                            .textCase(.uppercase)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(ESColor.primary)
+                                .opacity(vm.isLoading ? 0.6 : 1)
+                        )
                     }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 18)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(ESColor.primary)
-                            .opacity(vm.isLoading ? 0.6 : 1)
-                    )
+                    .disabled(vm.isLoading)
+                    .accessibilityLabel(vm.strings.capture)
+
+                    PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "photo.fill")
+                                .font(.system(size: 13, weight: .bold))
+                            Text("Gallery")
+                                .font(ESFont.mono(11, weight: .heavy))
+                                .kerning(2)
+                                .textCase(.uppercase)
+                        }
+                        .foregroundStyle(ESColor.foreground)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 18)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(ESColor.border, lineWidth: 1.5)
+                        )
+                    }
+                    .disabled(vm.isLoading)
                 }
-                .disabled(vm.isLoading)
-                .accessibilityLabel(vm.strings.capture)
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
 
@@ -235,6 +258,18 @@ struct CameraSheet: View {
             if !vm.cameraService.isMock {
                 vm.cameraService.stopSession()
                 vm.isCameraReady = false
+            }
+        }
+        .onChange(of: selectedPhotoItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    await MainActor.run {
+                        vm.searchByUploadedImage(image)
+                        vm.sheet = nil
+                    }
+                }
             }
         }
     }

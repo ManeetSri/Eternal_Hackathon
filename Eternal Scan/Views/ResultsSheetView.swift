@@ -12,6 +12,7 @@ struct ResultsSheetView: View {
     @State private var rotationDegrees: Double = 0.0
     @State private var scaleEffectValue: CGFloat = 1.0
     @State private var statusMessage: String = "Initializing AI processing..."
+    @State private var showingCartAlert = false
 
     var body: some View {
         NavigationStack {
@@ -159,6 +160,17 @@ struct ResultsSheetView: View {
                     .foregroundColor(ESColor.foreground)
                 }
             }
+            .alert("Add Top Matches?", isPresented: $showingCartAlert) {
+                Button("Merge Items") {
+                    vm.addTopMatchesAndCheckout(clearCart: false)
+                }
+                Button("Clear Cart First", role: .destructive) {
+                    vm.addTopMatchesAndCheckout(clearCart: true)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Your cart already has items. Do you want to merge these matches, or empty the cart first?")
+            }
         }
     }
 
@@ -203,27 +215,61 @@ struct ResultsSheetView: View {
                     .foregroundColor(product.inStock ? ESColor.foreground : ESColor.muted)
                 
                 if product.inStock {
-                    Button {
-                        withAnimation(.spring()) {
-                            vm.addToCart(product)
-                        }
-                    } label: {
-                        HStack(spacing: 3) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 10, weight: .bold))
-                            Text(vm.strings.add)
+                    if let cartItem = vm.cart.first(where: { $0.product.id == product.id }) {
+                        HStack(spacing: 0) {
+                            Button {
+                                withAnimation {
+                                    vm.removeFromCart(product)
+                                }
+                            } label: {
+                                Image(systemName: "minus")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Color.white.opacity(0.8))
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
+                            Text("\(cartItem.quantity)")
                                 .font(ESFont.mono(11, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 20)
+                            Button {
+                                withAnimation {
+                                    vm.addToCart(product)
+                                }
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
                         }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 11)
                         .background(
-                            Capsule().fill(ESColor.foreground)
+                            Capsule().fill(ESColor.primary)
                         )
-                        .contentShape(Capsule())
+                    } else {
+                        Button {
+                            withAnimation(.spring()) {
+                                vm.addToCart(product)
+                            }
+                        } label: {
+                            HStack(spacing: 3) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 10, weight: .bold))
+                                Text(vm.strings.add)
+                                    .font(ESFont.mono(11, weight: .bold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 11)
+                            .background(
+                                Capsule().fill(ESColor.foreground)
+                            )
+                            .contentShape(Capsule())
+                        }
+                        .buttonStyle(PressableStyle())
+                        .accessibilityLabel("\(vm.strings.add) \(product.name)")
                     }
-                    .buttonStyle(PressableStyle())
-                    .accessibilityLabel("\(vm.strings.add) \(product.name)")
                 } else {
                     Text(vm.strings.unavailable)
                         .font(ESFont.mono(11, weight: .bold))
@@ -277,27 +323,61 @@ struct ResultsSheetView: View {
                     .foregroundColor(product.inStock ? ESColor.foreground : ESColor.muted)
                 
                 if product.inStock {
-                    Button {
-                        withAnimation(.spring()) {
-                            vm.addToCart(product)
-                        }
-                    } label: {
-                        HStack(spacing: 3) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 10, weight: .bold))
-                            Text(vm.strings.add)
+                    if let cartItem = vm.cart.first(where: { $0.product.id == product.id }) {
+                        HStack(spacing: 0) {
+                            Button {
+                                withAnimation {
+                                    vm.removeFromCart(product)
+                                }
+                            } label: {
+                                Image(systemName: "minus")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Color.white.opacity(0.8))
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
+                            Text("\(cartItem.quantity)")
                                 .font(ESFont.mono(11, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 20)
+                            Button {
+                                withAnimation {
+                                    vm.addToCart(product)
+                                }
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
                         }
-                        .foregroundColor(ESColor.foreground)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 11)
                         .background(
-                            Capsule().stroke(ESColor.border, lineWidth: 1)
+                            Capsule().fill(ESColor.primary)
                         )
-                        .contentShape(Capsule())
+                    } else {
+                        Button {
+                            withAnimation(.spring()) {
+                                vm.addToCart(product)
+                            }
+                        } label: {
+                            HStack(spacing: 3) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 10, weight: .bold))
+                                Text(vm.strings.add)
+                                    .font(ESFont.mono(11, weight: .bold))
+                            }
+                            .foregroundColor(ESColor.foreground)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 11)
+                            .background(
+                                Capsule().stroke(ESColor.border, lineWidth: 1)
+                            )
+                            .contentShape(Capsule())
+                        }
+                        .buttonStyle(PressableStyle())
+                        .accessibilityLabel("\(vm.strings.add) \(product.name)")
                     }
-                    .buttonStyle(PressableStyle())
-                    .accessibilityLabel("\(vm.strings.add) \(product.name)")
                 } else {
                     Text(vm.strings.unavailable)
                         .font(ESFont.mono(11, weight: .bold))
@@ -328,7 +408,11 @@ struct ResultsSheetView: View {
             Spacer()
             Button {
                 withAnimation(.spring()) {
-                    vm.addTopMatchesAndCheckout()
+                    if vm.cart.isEmpty {
+                        vm.addTopMatchesAndCheckout(clearCart: false)
+                    } else {
+                        showingCartAlert = true
+                    }
                 }
             } label: {
                 HStack(spacing: 8) {

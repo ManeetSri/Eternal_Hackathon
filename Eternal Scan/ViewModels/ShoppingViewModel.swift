@@ -296,6 +296,38 @@ final class ShoppingViewModel: ObservableObject {
             self.isLoading = false
         }
     }
+
+    func searchByUploadedImage(_ image: UIImage) {
+        isLoading = true
+        isUsingCamera = true
+        isShowingResultsSheet = true
+        self.rawScannedText = "Scanning image..."
+        self.detectedIngredients = []
+        self.matchedProducts = []
+        self.directMatches = []
+        self.relatableMatches = []
+        
+        Task {
+            do {
+                // Run image through Apple Intelligence local AI to identify product
+                let productName = try await aiService.identifyProduct(from: image)
+                
+                // Update UI state
+                self.rawScannedText = productName
+                
+                // Fetch search terms / ingredients for this product name
+                self.detectedIngredients = repository.getIngredients(for: productName)
+                self.matchProducts()
+                
+                Haptics.success()
+            } catch {
+                print("Uploaded image scanning failed: \(error.localizedDescription)")
+                self.isShowingResultsSheet = false
+                self.showSnackbar(self.strings.scanFailed)
+            }
+            self.isLoading = false
+        }
+    }
     
     func matchProducts() {
         let terms = detectedIngredients.map { $0.lowercased() }
@@ -432,7 +464,10 @@ final class ShoppingViewModel: ObservableObject {
     }
     
     /// Adds the top match for every ingredient (in-stock only) and jumps to checkout.
-    func addTopMatchesAndCheckout() {
+    func addTopMatchesAndCheckout(clearCart: Bool = false) {
+        if clearCart {
+            cart.removeAll()
+        }
         let tops = directMatches.filter { $0.inStock }
         guard !tops.isEmpty else { return }
         for product in tops {
