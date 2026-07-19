@@ -182,8 +182,10 @@ final class ShoppingViewModel: ObservableObject {
     }
 
     func backHome() {
+        if screen == .order {
+            cart.removeAll()
+        }
         screen = .dashboard
-        cart.removeAll()
         query = ""
         detectedIngredients.removeAll()
         matchedProducts.removeAll()
