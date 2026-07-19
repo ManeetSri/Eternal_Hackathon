@@ -9,135 +9,143 @@ struct ResultsSheetView: View {
     @ObservedObject var vm: ShoppingViewModel
     @Environment(\.dismiss) var dismiss
 
+    @State private var rotationDegrees: Double = 0.0
+    @State private var scaleEffectValue: CGFloat = 1.0
+    @State private var statusMessage: String = "Initializing AI processing..."
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 ESColor.background.ignoresSafeArea()
 
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-                        
-                        // Scanned target detection indicator
-                        if vm.isUsingCamera {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "sparkles")
-                                        .foregroundColor(ESColor.ai)
-                                        .font(.system(size: 11, weight: .bold))
-                                    Text(vm.strings.photoDetectedOf)
-                                        .monoLabel(size: 11, color: ESColor.ai)
-                                }
-                                Text(vm.rawScannedText.isEmpty ? "No readable text detected" : vm.rawScannedText)
-                                    .font(ESFont.sans(20, weight: .heavy))
-                                    .foregroundColor(ESColor.foreground)
-                                    .tracking(-0.5)
-                            }
-                            .padding(18)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .fill(ESColor.surface)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                            .stroke(ESColor.border, lineWidth: 1)
-                                    )
-                            )
-                            .padding(.horizontal, 20)
-                            .padding(.top, 10)
-                        }
-
-                        // Ingredients list pills
-                        if !vm.detectedIngredients.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(vm.strings.identifiedIngredients).monoLabel(size: 11)
-                                    .padding(.horizontal, 20)
-
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 8) {
-                                        ForEach(vm.detectedIngredients, id: \.self) { ingredient in
-                                            HStack(spacing: 5) {
-                                                Circle()
-                                                    .fill(ESColor.primary)
-                                                    .frame(width: 5, height: 5)
-                                                Text(ingredient)
-                                                    .font(ESFont.sans(11, weight: .bold))
-                                            }
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .background(
-                                                Capsule()
-                                                    .fill(ESColor.surface)
-                                                    .overlay(Capsule().stroke(ESColor.border, lineWidth: 1))
-                                            )
-                                            .foregroundStyle(ESColor.foreground)
-                                        }
+                if vm.isLoading {
+                    loaderView
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 20) {
+                            
+                            // Scanned target detection indicator
+                            if vm.isUsingCamera {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "sparkles")
+                                            .foregroundColor(ESColor.ai)
+                                            .font(.system(size: 11, weight: .bold))
+                                        Text(vm.strings.photoDetectedOf)
+                                            .monoLabel(size: 11, color: ESColor.ai)
                                     }
-                                    .padding(.horizontal, 20)
+                                    Text(vm.rawScannedText.isEmpty ? "No readable text detected" : vm.rawScannedText)
+                                        .font(ESFont.sans(20, weight: .heavy))
+                                        .foregroundColor(ESColor.foreground)
+                                        .tracking(-0.5)
                                 }
+                                .padding(18)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .fill(ESColor.surface)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                                .stroke(ESColor.border, lineWidth: 1)
+                                        )
+                                )
+                                .padding(.horizontal, 20)
+                                .padding(.top, 10)
                             }
-                        }
 
-                        // Product matches
-                        if vm.matchedProducts.isEmpty {
-                            VStack(spacing: 16) {
-                                Image(systemName: "shippingbox.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(ESColor.muted)
-                                Text(vm.strings.noMatchesTitle)
-                                    .font(ESFont.sans(16, weight: .bold))
-                                Text(vm.strings.noMatchesBody)
-                                    .font(ESFont.sans(12))
-                                    .foregroundColor(ESColor.muted)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(.vertical, 80)
-                            .frame(maxWidth: .infinity)
-                        } else {
-                            VStack(alignment: .leading, spacing: 24) {
-                                // 1. Scanned Match (Highly Confident Direct Matches)
-                                if !vm.directMatches.isEmpty {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        Text(vm.strings.directMatch).monoLabel(size: 11, color: ESColor.primary)
-                                            .padding(.horizontal, 20)
-                                        
-                                        VStack(spacing: 12) {
-                                            ForEach(vm.directMatches) { product in
-                                                directProductRow(product)
-                                            }
-                                        }
+                            // Ingredients list pills
+                            if !vm.detectedIngredients.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(vm.strings.identifiedIngredients).monoLabel(size: 11)
                                         .padding(.horizontal, 20)
-                                    }
-                                }
 
-                                // 2. Relatable Items
-                                if !vm.relatableMatches.isEmpty {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        Text(vm.directMatches.isEmpty ? vm.strings.matchingProducts : vm.strings.relatableOptions).monoLabel(size: 11)
-                                            .padding(.horizontal, 20)
-
-                                        VStack(spacing: 12) {
-                                            ForEach(vm.relatableMatches) { product in
-                                                productRow(product)
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        HStack(spacing: 8) {
+                                            ForEach(vm.detectedIngredients, id: \.self) { ingredient in
+                                                HStack(spacing: 5) {
+                                                    Circle()
+                                                        .fill(ESColor.primary)
+                                                        .frame(width: 5, height: 5)
+                                                    Text(ingredient)
+                                                        .font(ESFont.sans(11, weight: .bold))
+                                                }
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 6)
+                                                .background(
+                                                    Capsule()
+                                                        .fill(ESColor.surface)
+                                                        .overlay(Capsule().stroke(ESColor.border, lineWidth: 1))
+                                                )
+                                                .foregroundStyle(ESColor.foreground)
                                             }
                                         }
                                         .padding(.horizontal, 20)
                                     }
                                 }
                             }
-                        }
 
-                        // Bottom Spacer to prevent overlap with sticky button
-                        Color.clear.frame(height: 100)
+                            // Product matches
+                            if vm.matchedProducts.isEmpty {
+                                VStack(spacing: 16) {
+                                    Image(systemName: "shippingbox.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(ESColor.muted)
+                                    Text(vm.strings.noMatchesTitle)
+                                        .font(ESFont.sans(16, weight: .bold))
+                                    Text(vm.strings.noMatchesBody)
+                                        .font(ESFont.sans(12))
+                                        .foregroundColor(ESColor.muted)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .padding(.vertical, 80)
+                                .frame(maxWidth: .infinity)
+                            } else {
+                                VStack(alignment: .leading, spacing: 24) {
+                                    // 1. Scanned Match (Highly Confident Direct Matches)
+                                    if !vm.directMatches.isEmpty {
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            Text(vm.strings.directMatch).monoLabel(size: 11, color: ESColor.primary)
+                                                .padding(.horizontal, 20)
+                                            
+                                            VStack(spacing: 12) {
+                                                ForEach(vm.directMatches) { product in
+                                                    directProductRow(product)
+                                                }
+                                            }
+                                            .padding(.horizontal, 20)
+                                        }
+                                    }
+
+                                    // 2. Relatable Items
+                                    if !vm.relatableMatches.isEmpty {
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            Text(vm.directMatches.isEmpty ? vm.strings.matchingProducts : vm.strings.relatableOptions).monoLabel(size: 11)
+                                                .padding(.horizontal, 20)
+
+                                            VStack(spacing: 12) {
+                                                ForEach(vm.relatableMatches) { product in
+                                                    productRow(product)
+                                                }
+                                            }
+                                            .padding(.horizontal, 20)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Bottom Spacer to prevent overlap with sticky button
+                            Color.clear.frame(height: 100)
+                        }
+                        .padding(.vertical)
                     }
-                    .padding(.vertical)
                 }
 
                 // Sticky Add All Button
-                if !vm.matchedProducts.isEmpty {
+                if !vm.isLoading && !vm.matchedProducts.isEmpty {
                     addAllButtonOverlay
                 }
             }
-            .navigationTitle(vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle)
+            .navigationTitle(vm.isLoading ? (vm.isUsingCamera ? "Scanning..." : "Searching...") : (vm.isUsingCamera ? vm.strings.scanResultsTitle : vm.strings.ingredientsFoundTitle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -339,6 +347,101 @@ struct ResultsSheetView: View {
             .disabled(inStockCount == 0)
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
+        }
+    }
+
+    // Loading/Searching Overlay State View
+    private var loaderView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            // Pulsing AI reticle/ring
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [ESColor.primary.opacity(0.12), ESColor.ai.opacity(0.12)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 140, height: 140)
+                    .scaleEffect(scaleEffectValue)
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                            scaleEffectValue = 1.15
+                        }
+                    }
+                
+                Circle()
+                    .stroke(
+                        LinearGradient(colors: [ESColor.primary, ESColor.ai], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round, dash: [8, 8])
+                    )
+                    .frame(width: 140, height: 140)
+                    .rotationEffect(.degrees(rotationDegrees))
+                    .onAppear {
+                        withAnimation(.linear(duration: 4.0).repeatForever(autoreverses: false)) {
+                            rotationDegrees = 360
+                        }
+                    }
+                
+                Image(systemName: vm.isUsingCamera ? "viewfinder" : "sparkles")
+                    .font(.system(size: 44, weight: .light))
+                    .foregroundStyle(
+                        LinearGradient(colors: [ESColor.primary, ESColor.ai], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .shadow(color: ESColor.primary.opacity(0.4), radius: 8)
+            }
+            
+            VStack(spacing: 8) {
+                Text(vm.isUsingCamera ? "Analyzing Scan..." : "Analyzing Recipe...")
+                    .font(ESFont.sans(20, weight: .heavy))
+                    .foregroundColor(ESColor.foreground)
+                    .tracking(-0.5)
+                
+                Text(statusMessage)
+                    .font(ESFont.sans(13, weight: .medium))
+                    .foregroundColor(ESColor.muted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                    .onAppear {
+                        startStatusCycling()
+                    }
+            }
+            .padding(.top, 10)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+    }
+    
+    private func startStatusCycling() {
+        let messages = vm.isUsingCamera ? [
+            "Initializing camera frame capture...",
+            "Running OCR text recognition...",
+            "Running local object classification...",
+            "Querying Groq Llama 3.3 for matches...",
+            "Matching catalog items..."
+        ] : [
+            "Parsing query intent...",
+            "Analyzing recipe ingredients...",
+            "Retrieving recipe ingredients...",
+            "Querying catalog items..."
+        ]
+        
+        statusMessage = messages.first ?? ""
+        var index = 0
+        Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { timer in
+            if !vm.isLoading {
+                timer.invalidate()
+                return
+            }
+            index = (index + 1) % messages.count
+            withAnimation(.easeInOut(duration: 0.25)) {
+                statusMessage = messages[index]
+            }
         }
     }
 }

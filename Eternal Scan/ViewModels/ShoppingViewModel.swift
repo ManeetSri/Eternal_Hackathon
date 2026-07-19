@@ -172,13 +172,27 @@ final class ShoppingViewModel: ObservableObject {
         
         isUsingCamera = false
         rawScannedText = key
-        detectedIngredients = repository.getIngredients(for: key)
-        matchProducts()
-        matchedProducts.isEmpty ? Haptics.error() : Haptics.success()
+        
+        isLoading = true
         isShowingResultsSheet = true
-        if lastInputWasVoice {
-            lastInputWasVoice = false
-            speakResultSummary()
+        self.detectedIngredients = []
+        self.matchedProducts = []
+        self.directMatches = []
+        self.relatableMatches = []
+        
+        Task {
+            // Simulate AI intent analysis
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            
+            self.detectedIngredients = repository.getIngredients(for: key)
+            self.matchProducts()
+            matchedProducts.isEmpty ? Haptics.error() : Haptics.success()
+            self.isLoading = false
+            
+            if lastInputWasVoice {
+                lastInputWasVoice = false
+                speakResultSummary()
+            }
         }
     }
 
@@ -187,13 +201,33 @@ final class ShoppingViewModel: ObservableObject {
         query = recipe
         isUsingCamera = false
         rawScannedText = recipe
-        detectedIngredients = repository.getIngredients(for: recipe)
-        matchProducts()
+        
+        isLoading = true
         isShowingResultsSheet = true
+        self.detectedIngredients = []
+        self.matchedProducts = []
+        self.directMatches = []
+        self.relatableMatches = []
+        
+        Task {
+            // Simulate AI ingredients analysis
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            
+            self.detectedIngredients = repository.getIngredients(for: recipe)
+            self.matchProducts()
+            self.isLoading = false
+        }
     }
     
     func searchByCameraSnapshot(simulatorTargetName: String? = nil) {
         isLoading = true
+        isUsingCamera = true
+        isShowingResultsSheet = true
+        self.rawScannedText = "Scanning..."
+        self.detectedIngredients = []
+        self.matchedProducts = []
+        self.directMatches = []
+        self.relatableMatches = []
         
         // If a simulator target is provided, feed it to the mock detector
         if let target = simulatorTargetName {
@@ -218,9 +252,7 @@ final class ShoppingViewModel: ObservableObject {
                 self.detectedIngredients = repository.getIngredients(for: productName)
                 self.matchProducts()
                 
-                self.isUsingCamera = true
                 Haptics.success()
-                self.isShowingResultsSheet = true
             } catch {
                 print("Camera scanning failed: \(error.localizedDescription)")
 
@@ -228,9 +260,7 @@ final class ShoppingViewModel: ObservableObject {
                 self.rawScannedText = "Unknown Product"
                 self.detectedIngredients = []
                 self.matchProducts()
-                self.isUsingCamera = true
                 Haptics.error()
-                self.isShowingResultsSheet = true
             }
             
             self.cameraService.stopSession()
