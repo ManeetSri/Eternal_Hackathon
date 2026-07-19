@@ -85,6 +85,10 @@ final class ShoppingViewModel: ObservableObject {
     var cartCount: Int {
         cart.reduce(0) { $0 + $1.quantity }
     }
+
+    func quantityInCart(_ product: Product) -> Int {
+        cart.first(where: { $0.product.id == product.id })?.quantity ?? 0
+    }
     
     // MARK: - Snackbar
 
