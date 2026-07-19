@@ -101,6 +101,7 @@ final class ShoppingViewModel: ObservableObject {
 
     func openVoice() {
         Haptics.tap()
+        voiceService.cancel() // fresh session: no stale transcript or error
         voiceService.onFinish = { [weak self] text in
             self?.finishVoiceOrder(text)
         }
@@ -114,6 +115,11 @@ final class ShoppingViewModel: ObservableObject {
         lastInputWasVoice = true
         sheet = nil
         searchByIntentOrText()
+        // A failed voice search shouldn't leave its transcript behind as
+        // a stale prefill the next time the text sheet opens.
+        if matchedProducts.isEmpty {
+            query = ""
+        }
     }
 
     private func speakResultSummary() {

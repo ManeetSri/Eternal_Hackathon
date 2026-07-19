@@ -2,14 +2,38 @@
 //  VoiceSheet.swift
 //  Eternal Scan — bottom sheet: speak your order.
 //
-//  Elder-first design: one giant mic target, large live transcript,
-//  auto-finish on silence, and a "type instead" escape hatch.
+//  Elder-first design: one giant mic target, live voice-reactive waveform,
+//  large transcript, auto-finish on silence, explicit error states with a
+//  Settings shortcut, and a "type instead" escape hatch that carries the
+//  transcript across.
 //
 
 import SwiftUI
 
+/// Five capsule bars whose heights follow the live microphone level.
+private struct VoiceWaveBars: View {
+    var level: CGFloat
+
+    private static let profile: [CGFloat] = [0.35, 0.7, 1.0, 0.7, 0.35]
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<Self.profile.count, id: \.self) { i in
+                Capsule()
+                    .fill(.white)
+                    .frame(width: 5, height: 10 + 36 * Self.profile[i] * max(0.12, level))
+            }
+        }
+        .animation(.easeOut(duration: 0.15), value: level)
+        .frame(height: 50)
+    }
+}
+
 struct VoiceSheet: View {
     @EnvironmentObject var vm: ShoppingViewModel
+    // Observed directly: nested ObservableObjects don't propagate their
+    // @Published changes through the parent view model.
+    @ObservedObject var voiceService: VoiceInputService
     @State private var language: VoiceLanguage = .english
     @State private var pulse = false
 
@@ -28,15 +52,16 @@ struct VoiceSheet: View {
                 }
                 Spacer()
                 Button {
-                    vm.voiceService.cancel()
+                    voiceService.cancel()
                     vm.sheet = nil
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(ESColor.foreground)
                         .frame(width: 44, height: 44)
                         .background(Circle().fill(Color.black.opacity(0.05)))
                 }
+                .accessibilityLabel(vm.strings.close)
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -62,24 +87,40 @@ struct VoiceSheet: View {
                 }
             }
             .padding(.top, 18)
-            .disabled(vm.voiceService.isListening)
-            .opacity(vm.voiceService.isListening ? 0.4 : 1)
+            .disabled(voiceService.isListening || voiceService.isProcessing)
+            .opacity(voiceService.isListening || voiceService.isProcessing ? 0.4 : 1)
 
             Spacer()
 
-            // Live transcript / prompt
+            // Live transcript / prompt / error
             Group {
-                if let error = vm.voiceService.errorMessage {
-                    Text(error)
-                        .font(ESFont.sans(18, weight: .bold))
-                        .foregroundStyle(ESColor.muted)
-                } else if vm.voiceService.transcript.isEmpty {
-                    Text(vm.voiceService.isListening ? vm.strings.listening : vm.strings.voiceIdlePrompt)
+                if let error = voiceService.error {
+                    VStack(spacing: 14) {
+                        Text(vm.strings.voiceError(error))
+                            .font(ESFont.sans(18, weight: .bold))
+                            .foregroundStyle(ESColor.muted)
+                        if error.isFixableInSettings {
+                            Button(action: openSettings) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "gear")
+                                        .font(.system(size: 12, weight: .semibold))
+                                    Text(vm.strings.openSettings)
+                                        .font(ESFont.sans(14, weight: .bold))
+                                }
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 12)
+                                .background(Capsule().fill(ESColor.foreground))
+                            }
+                        }
+                    }
+                } else if voiceService.transcript.isEmpty {
+                    Text(voiceService.isListening ? vm.strings.listening : vm.strings.voiceIdlePrompt)
                         .font(ESFont.sans(22, weight: .heavy))
                         .tracking(-0.6)
-                        .foregroundStyle(vm.voiceService.isListening ? ESColor.primary : ESColor.muted)
+                        .foregroundStyle(voiceService.isListening ? ESColor.primary : ESColor.muted)
                 } else {
-                    Text(vm.voiceService.transcript)
+                    Text(voiceService.transcript)
                         .font(ESFont.sans(26, weight: .heavy))
                         .tracking(-0.8)
                         .foregroundStyle(ESColor.foreground)
@@ -88,12 +129,12 @@ struct VoiceSheet: View {
             .multilineTextAlignment(.center)
             .padding(.horizontal, 32)
             .frame(minHeight: 110)
-            .animation(.easeInOut(duration: 0.15), value: vm.voiceService.transcript)
+            .animation(.easeInOut(duration: 0.15), value: voiceService.transcript)
 
-            // Giant mic button
-            Button(action: toggleListening) {
+            // Giant mic button: idle → listening (wave) → processing (spinner)
+            Button(action: micTapped) {
                 ZStack {
-                    if vm.voiceService.isListening {
+                    if voiceService.isListening {
                         Circle()
                             .stroke(ESColor.primary.opacity(0.35), lineWidth: 2)
                             .frame(width: 156, height: 156)
@@ -101,18 +142,32 @@ struct VoiceSheet: View {
                             .opacity(pulse ? 0 : 1)
                     }
                     Circle()
-                        .fill(vm.voiceService.isListening ? ESColor.primary : ESColor.foreground)
+                        .fill(voiceService.isListening ? ESColor.primary : ESColor.foreground)
                         .frame(width: 132, height: 132)
-                        .shadow(color: (vm.voiceService.isListening ? ESColor.primary : Color.black).opacity(0.3), radius: 18, y: 8)
-                    Image(systemName: vm.voiceService.isListening ? "waveform" : "mic.fill")
-                        .font(.system(size: 44, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .shadow(color: (voiceService.isListening ? ESColor.primary : Color.black).opacity(0.3), radius: 18, y: 8)
+
+                    if voiceService.isProcessing {
+                        ProgressView()
+                            .tint(.white)
+                            .scaleEffect(1.5)
+                    } else if voiceService.isListening {
+                        VoiceWaveBars(level: voiceService.audioLevel)
+                    } else {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 44, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
                 }
             }
             .buttonStyle(PressableStyle())
+            .disabled(voiceService.isProcessing)
             .padding(.top, 28)
-            .accessibilityLabel(vm.voiceService.isListening ? "Listening. Tap to finish." : "Start speaking your order")
-            .onChange(of: vm.voiceService.isListening) { _, listening in
+            .accessibilityLabel(
+                voiceService.isProcessing ? vm.strings.voiceProcessing :
+                voiceService.isListening ? "Listening. Tap to finish." :
+                "Start speaking your order"
+            )
+            .onChange(of: voiceService.isListening) { _, listening in
                 if listening {
                     pulse = false
                     withAnimation(.easeOut(duration: 1.4).repeatForever(autoreverses: false)) {
@@ -123,15 +178,22 @@ struct VoiceSheet: View {
                 }
             }
 
-            Text(vm.voiceService.isListening ? vm.strings.voiceSilenceHint : vm.strings.voiceTryHint)
+            Text(statusHint)
                 .monoLabel(size: 11)
                 .padding(.top, 22)
 
             Spacer()
 
-            // Escape hatch
+            // Escape hatch — carries the transcript into the text sheet,
+            // and clears stale text after a failed voice attempt.
             Button {
-                vm.voiceService.cancel()
+                let heard = voiceService.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !heard.isEmpty {
+                    vm.query = String(heard.prefix(140))
+                } else if voiceService.error != nil {
+                    vm.query = ""
+                }
+                voiceService.cancel()
                 vm.sheet = .text
             } label: {
                 HStack(spacing: 8) {
@@ -158,21 +220,37 @@ struct VoiceSheet: View {
             language = vm.language == .hindi ? .hindi : .english
         }
         .onDisappear {
-            vm.voiceService.cancel()
+            voiceService.cancel()
         }
     }
 
-    private func toggleListening() {
-        if vm.voiceService.isListening {
-            vm.voiceService.finish()
+    private var statusHint: String {
+        if voiceService.isProcessing {
+            return vm.strings.voiceProcessing
+        }
+        if voiceService.isListening {
+            return vm.strings.voiceSilenceHint
+        }
+        return vm.strings.voiceTryHint
+    }
+
+    private func micTapped() {
+        if voiceService.isListening {
+            voiceService.finish()
         } else {
             Task {
-                await vm.voiceService.start(language: language)
+                await voiceService.start(language: language)
             }
+        }
+    }
+
+    private func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
 }
 
 #Preview {
-    VoiceSheet().environmentObject(ShoppingViewModel())
+    VoiceSheet(voiceService: VoiceInputService()).environmentObject(ShoppingViewModel())
 }
