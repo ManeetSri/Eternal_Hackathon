@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var vm = ShoppingViewModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack {
@@ -57,6 +58,21 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(32)
                 .presentationBackground(ESColor.background)
+        }
+        .alert("Import Image?", isPresented: $vm.showingScreenshotPrompt) {
+            Button("Scan with AI") {
+                vm.processDetectedScreenshot()
+            }
+            Button("Cancel", role: .cancel) {
+                vm.declineDetectedScreenshot()
+            }
+        } message: {
+            Text("We detected a screenshot or image in your clipboard/photos. Would you like to scan it?")
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                vm.checkForScreenshotOrClipboard()
+            }
         }
     }
 }

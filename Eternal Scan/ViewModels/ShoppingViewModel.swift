@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Combine
 import AVFoundation
+import Photos
 
 enum Screen {
     case dashboard
@@ -27,6 +28,9 @@ final class ShoppingViewModel: ObservableObject {
 
     @Published var snackbar: SnackbarMessage?
     private var snackbarDismissTask: Task<Void, Never>?
+
+    @Published var screenshotToProcess: UIImage? = nil
+    @Published var showingScreenshotPrompt = false
 
     @Published var query: String = ""
     @Published var detectedIngredients: [String] = []
@@ -333,6 +337,80 @@ final class ShoppingViewModel: ObservableObject {
             }
             self.isLoading = false
         }
+    }
+
+    func checkForScreenshotOrClipboard() {
+        // 1. Check clipboard first
+        if UIPasteboard.general.hasImages, let image = UIPasteboard.general.image {
+            let lastProcessedImageHash = UserDefaults.standard.integer(forKey: "last_processed_clipboard_image_hash")
+            let imageHash = image.hashValue
+            if imageHash != lastProcessedImageHash {
+                self.screenshotToProcess = image
+                self.showingScreenshotPrompt = true
+                return
+            }
+        }
+        
+        // 2. Check Photo Library for screenshots
+        Task {
+            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+            if status == .notDetermined {
+                let granted = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+                guard granted == .authorized || granted == .limited else { return }
+            } else if status != .authorized && status != .limited {
+                return
+            }
+            
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            fetchOptions.fetchLimit = 1
+            
+            let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+            guard let asset = fetchResult.firstObject else { return }
+            guard asset.mediaSubtypes.contains(.photoScreenshot) else { return }
+            
+            if let creationDate = asset.creationDate, Date().timeIntervalSince(creationDate) < 120 {
+                let lastProcessedAssetID = UserDefaults.standard.string(forKey: "last_processed_screenshot_asset_id")
+                if asset.localIdentifier != lastProcessedAssetID {
+                    let image = await withCheckedContinuation { continuation in
+                        let manager = PHImageManager.default()
+                        let options = PHImageRequestOptions()
+                        options.isSynchronous = true
+                        options.deliveryMode = .highQualityFormat
+                        manager.requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { img, _ in
+                            continuation.resume(returning: img)
+                        }
+                    }
+                    
+                    if let image = image {
+                        await MainActor.run {
+                            self.screenshotToProcess = image
+                            UserDefaults.standard.set(asset.localIdentifier, forKey: "last_processed_screenshot_asset_id")
+                            self.showingScreenshotPrompt = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func processDetectedScreenshot() {
+        guard let image = screenshotToProcess else { return }
+        if UIPasteboard.general.hasImages, let clipImage = UIPasteboard.general.image, clipImage.hashValue == image.hashValue {
+            UserDefaults.standard.set(image.hashValue, forKey: "last_processed_clipboard_image_hash")
+        }
+        self.showingScreenshotPrompt = false
+        self.screenshotToProcess = nil
+        self.searchByUploadedImage(image)
+    }
+    
+    func declineDetectedScreenshot() {
+        guard let image = screenshotToProcess else { return }
+        if UIPasteboard.general.hasImages, let clipImage = UIPasteboard.general.image, clipImage.hashValue == image.hashValue {
+            UserDefaults.standard.set(image.hashValue, forKey: "last_processed_clipboard_image_hash")
+        }
+        self.showingScreenshotPrompt = false
+        self.screenshotToProcess = nil
     }
     
     func matchProducts() {
